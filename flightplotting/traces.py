@@ -161,7 +161,7 @@ def _npinterzip(a, b):
 
 
 def ribbon(sec: Section, span: float):
-    """WIP Vectorised version of ribbon.
+    """WIP Vectorised version of ribbon, borrowed from kdoaij/FlightPlotting
 
         refactoring ribbon, objectives:
             speed it up by avoiding looping over array - done
@@ -169,13 +169,7 @@ def ribbon(sec: Section, span: float):
         minor mod - 2 triangles per pair of points: - done
             current pair to next left
             current right to next pair
-
-        0 1 2
-        1 3 2
-        2 3 4
-        3 5 4
-        4 5 6
-        5 7 6
+        
     """
 
     left = sec.body_to_world(Point(0, span/2, 0))
@@ -196,6 +190,6 @@ def ribbon(sec: Section, span: float):
         x=points.x, y=points.y, z=points.z, i=_i, j=_j, k=_k,
         intensitymode="cell",
         #facecolor=np.full(len(triids), "red"),
-        showlegend=True,
+        #showlegend=True,
         hoverinfo="none"
     )]
