@@ -7,6 +7,7 @@ from typing import List, Union
 from math import cos, sin, tan, radians
 from geometry import Points
 from flightanalysis import Section
+from flightanalysis.schedule import Manoeuvre, Element, Schedule
 
 
 def boxtrace():
@@ -60,9 +61,10 @@ def cgtrace(seq, name="cgtrace"):
         name=name
     )
 
-def manoeuvretraces(seq):
+def manoeuvretraces(schedule: Schedule, section: Section):
     traces = []
-    for name, manoeuvre in seq.split_manoeuvres().items():
+    for man in schedule.manoeuvres:
+        manoeuvre = man.get_data(section)
         traces.append(go.Scatter3d(
             x=manoeuvre.x,
             y=manoeuvre.y,
@@ -70,23 +72,24 @@ def manoeuvretraces(seq):
             mode='lines',
             text=manoeuvre.element,
             hoverinfo="text",
-            name=name
+            name=man.name
         ))
 
     return traces
 
 
-def elementtraces(seq):
+def elementtraces(manoeuvre: Manoeuvre, sec: Section):
     traces = []
-    for name, element in seq.split_elements().items():
+    for id, element in enumerate(manoeuvre.elements):
+        elm = element.get_data(sec)
         traces.append(go.Scatter3d(
-            x=element.x,
-            y=element.y,
-            z=element.z,
+            x=elm.x,
+            y=elm.y,
+            z=elm.z,
             mode='lines',
-            text=element.manoeuvre,
+            text=manoeuvre.name,
             hoverinfo="text",
-            name=name
+            name=str(id)
         ))
 
     return traces
