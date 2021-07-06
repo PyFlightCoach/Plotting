@@ -7,7 +7,7 @@ from typing import List, Union
 from math import cos, sin, tan, radians
 from geometry import Points
 from flightanalysis import Section
-from flightanalysis.schedule import Manoeuvre, Element, Schedule
+from flightanalysis.schedule import Manoeuvre, Schedule
 
 
 def boxtrace():
