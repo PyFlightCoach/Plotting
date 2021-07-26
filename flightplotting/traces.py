@@ -114,6 +114,30 @@ def tiptrace(seq, span):
         make_offset_trace(Point(0, -span/2, 0), "red", text)
     ]
 
+from plotly.colors import DEFAULT_PLOTLY_COLORS
+def dtwtrace(sec: Section, elms, showlegend = True):
+    traces = tiptrace(sec, 10)
+
+    get_colour = lambda i : DEFAULT_PLOTLY_COLORS[i % len(DEFAULT_PLOTLY_COLORS)]  
+
+    for i, man in enumerate(elms):
+        seg = man.get_data(sec)
+        try:
+            name=man.name
+        except AttributeError:
+            name = "element {}".format(i)
+        traces.append(
+            go.Scatter3d(
+                x=seg.pos.x, 
+                y=seg.pos.y, 
+                z=seg.pos.z,
+                mode='lines', 
+                line=dict(width=6, color=get_colour(i)), 
+                name=name,
+                showlegend=showlegend))
+
+    return traces
+
 
 def axis_rate_trace(sec, ab = False):
     if ab:

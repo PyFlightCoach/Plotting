@@ -24,10 +24,14 @@ def plotdtw(sec: Section, manoeuvres):
 
     traces = tiptrace(sec, 10)
 
-    for man in manoeuvres:
+    for i, man in enumerate(manoeuvres):
         seg = man.get_data(sec)
+        try:
+            name=man.name
+        except AttributeError:
+            name = "element {}".format(i)
         traces.append(go.Scatter3d(x=seg.pos.x, y=seg.pos.y, z=seg.pos.z,
-                               mode='lines', line=dict(width=6), name=man.name))
+                               mode='lines', line=dict(width=6), name=name))
 
     fig = go.Figure(
         data=traces,
