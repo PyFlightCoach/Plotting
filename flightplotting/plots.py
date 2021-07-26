@@ -1,7 +1,8 @@
 import plotly.graph_objects as go
 import flightplotting.templates
 from flightplotting.traces import tiptrace, meshes
-
+from flightanalysis import Section
+from flightanalysis.schedule import Manoeuvre
 
 def plotsec(sec, obj, scale=10, nmodels=20, fig=None, color="orange"):
     traces = tiptrace(sec, scale * 1.85) + \
@@ -18,15 +19,15 @@ def plotsec(sec, obj, scale=10, nmodels=20, fig=None, color="orange"):
     return fig
 
 
-def plotdtw(flown, segments):
+def plotdtw(sec: Section, manoeuvres):
     fig = go.Figure()
 
-    traces = tiptrace(flown, 10)
+    traces = tiptrace(sec, 10)
 
-    for segname in segments["element"].unique():
-        seg = segments[segments.element == segname]
-        traces.append(go.Scatter3d(x=seg.x, y=seg.y, z=seg.z,
-                               mode='lines', line=dict(width=6), name=segname))
+    for man in manoeuvres:
+        seg = man.get_data(sec)
+        traces.append(go.Scatter3d(x=seg.pos.x, y=seg.pos.y, z=seg.pos.z,
+                               mode='lines', line=dict(width=6), name=man.name))
 
     fig = go.Figure(
         data=traces,
