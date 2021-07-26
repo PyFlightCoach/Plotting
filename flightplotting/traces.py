@@ -114,11 +114,13 @@ def tiptrace(seq, span):
         make_offset_trace(Point(0, -span/2, 0), "red", text)
     ]
 
+
+get_colour = lambda i : DEFAULT_PLOTLY_COLORS[i % len(DEFAULT_PLOTLY_COLORS)]  
 from plotly.colors import DEFAULT_PLOTLY_COLORS
 def dtwtrace(sec: Section, elms, showlegend = True):
     traces = tiptrace(sec, 10)
 
-    get_colour = lambda i : DEFAULT_PLOTLY_COLORS[i % len(DEFAULT_PLOTLY_COLORS)]  
+    
 
     for i, man in enumerate(elms):
         seg = man.get_data(sec)
@@ -142,14 +144,14 @@ def dtwtrace(sec: Section, elms, showlegend = True):
 def axis_rate_trace(sec, ab = False):
     if ab:
         return [
-            go.Scatter(x=sec.data.index, y=abs(sec.brvr), name="r"),
-            go.Scatter(x=sec.data.index, y=sec.brvp, name="p"),
-            go.Scatter(x=sec.data.index, y=abs(sec.brvy), name="y")]
+            go.Scatter(x=sec.data.index, y=abs(sec.brvr), name="r", line=dict(color=get_colour(1))),
+            go.Scatter(x=sec.data.index, y=sec.brvp, name="p", line=dict(color=get_colour(2))),
+            go.Scatter(x=sec.data.index, y=abs(sec.brvy), name="y", line=dict(color=get_colour(3)))]
     else:
         return [
-            go.Scatter(x=sec.data.index, y=sec.brvr, name="r"),
-            go.Scatter(x=sec.data.index, y=sec.brvp, name="p"),
-            go.Scatter(x=sec.data.index, y=sec.brvy, name="y")]
+            go.Scatter(x=sec.data.index, y=sec.brvr, name="r", line=dict(color=get_colour(1))),
+            go.Scatter(x=sec.data.index, y=sec.brvp, name="p", line=dict(color=get_colour(1))),
+            go.Scatter(x=sec.data.index, y=sec.brvy, name="y", line=dict(color=get_colour(1)))]
 
 
 def _axistrace(cid):
