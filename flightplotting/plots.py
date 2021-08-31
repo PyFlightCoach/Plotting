@@ -5,8 +5,9 @@ from flightanalysis import Section
 from flightanalysis.schedule import Manoeuvre
 
 def plotsec(sec, obj, scale=10, nmodels=20, fig=None, color="orange"):
-    traces = tiptrace(sec, scale * 1.85) + \
-        meshes(obj.scale(scale), nmodels, sec, color)
+    traces = tiptrace(sec, scale * 1.85)
+    if nmodels > 0:
+        traces += meshes(obj.scale(scale), nmodels, sec, color)
 
     if fig is None:
         fig = go.Figure(
