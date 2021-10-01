@@ -1,6 +1,7 @@
 import numpy as np
 import plotly.graph_objects as go
-from geometry import Transformation, Coord, Quaternion, Point, Quaternions, Points
+from geometry import Transformation, Quaternion, Point, Points
+from pkg_resources import resource_stream
 
 class OBJ(object):
     def __init__(self, vertices: Points, faces: np.ndarray):
@@ -70,3 +71,10 @@ class OBJ(object):
             hoverinfo="name",
             color=colour
         )  # vertexcolor=vertices[:, 3:], #the color codes must be triplets of floats  in [0,1]!!
+
+
+_obj_string = resource_stream(__name__,'data/ColdDraftF3APlane.obj').read().decode()
+
+obj = OBJ.from_obj_data(_obj_string).transform(Transformation(
+    Point(0.75, 0, 0), Quaternion.from_euler(Point(np.pi, 0, -np.pi/2))
+))

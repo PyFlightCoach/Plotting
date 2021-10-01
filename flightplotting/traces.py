@@ -8,7 +8,7 @@ from math import cos, sin, tan, radians
 from geometry import Points
 from flightanalysis import Section
 from flightanalysis.schedule import Manoeuvre, Schedule
-
+from flightplotting.model import obj, OBJ
 
 def boxtrace():
     xlim=170*tan(radians(60))
@@ -25,7 +25,7 @@ def boxtrace():
     )]
 
 
-def meshes(obj, npoints, seq, colour):
+def meshes(npoints, seq, colour, obj: OBJ=obj):
     start = seq.data.index[0]
     end = seq.data.index[-1]
     return [

@@ -19,5 +19,7 @@ setup(
    author='Thomas David',
    author_email='thomasdavid0@gmail.com',
    packages=['flightplotting'],
+   include_package_data = True,
+   package_data = {'': ['data/*.obj']},
    install_requires=['numpy', 'pandas', 'plotly'],
 )

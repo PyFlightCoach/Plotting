@@ -3,11 +3,12 @@ import flightplotting.templates
 from flightplotting.traces import tiptrace, meshes
 from flightanalysis import Section
 from flightanalysis.schedule import Manoeuvre
+from flightplotting.model import obj, OBJ
 
-def plotsec(sec, obj, scale=10, nmodels=20, fig=None, color="orange"):
+def plotsec(sec, scale=10, nmodels=20, fig=None, color="orange", obj: OBJ=obj):
     traces = tiptrace(sec, scale * 1.85)
     if nmodels > 0:
-        traces += meshes(obj.scale(scale), nmodels, sec, color)
+        traces += meshes(nmodels, sec, color, obj.scale(scale))
 
     if fig is None:
         fig = go.Figure(
