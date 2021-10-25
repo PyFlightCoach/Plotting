@@ -8,7 +8,7 @@ pio.templates["flight3d"] = go.layout.Template(layout=go.Layout(
         aspectmode='data',
         xaxis=dict(visible=False, showticklabels=False),
         yaxis=dict(visible=False, showticklabels=False),
-        zaxis=dict(visible=False, showticklabels=False)
+        zaxis=dict(visible=False, showticklabels=False),
     ),
     legend=dict(
         font=dict(size=20),

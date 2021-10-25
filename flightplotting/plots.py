@@ -5,16 +5,30 @@ from flightanalysis import Section
 from flightanalysis.schedule import Manoeuvre
 from flightplotting.model import obj, OBJ
 
-def plotsec(sec, scale=10, nmodels=20, fig=None, color="orange", obj: OBJ=obj):
+def plotsec(sec, scale=10, nmodels=20, fig=None, color="orange", obj: OBJ=obj, width=None, height=None, show_axes=False):
     traces = tiptrace(sec, scale * 1.85)
     if nmodels > 0:
         traces += meshes(nmodels, sec, color, obj.scale(scale))
 
     if fig is None:
+
         fig = go.Figure(
             data=traces,
             layout=go.Layout(template="flight3d+judge_view")
         )
+        if show_axes:
+            fig.update_layout(
+                scene=dict(
+                aspectmode='data',
+                xaxis=dict(visible=True, showticklabels=True),
+                yaxis=dict(visible=True, showticklabels=True),
+                zaxis=dict(visible=True, showticklabels=True)
+            )
+            )
+        if not width is None:
+            fig.update_layout(width=width)
+        if not height is None:
+            fig.update_layout(height=height)
     else:
         for trace in traces:
             fig.add_trace(trace)
