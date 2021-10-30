@@ -9,6 +9,9 @@ from geometry import Points
 from flightanalysis import Section
 from flightanalysis.schedule import Manoeuvre, Schedule
 from flightplotting.model import obj, OBJ
+import plotly.express as px
+
+
 
 def boxtrace():
     xlim=170*tan(radians(60))
@@ -141,18 +144,33 @@ def dtwtrace(sec: Section, elms, showlegend = True):
     return traces
 
 
-def axis_rate_trace(sec, ab = False):
-    if ab:
-        return [
-            go.Scatter(x=sec.data.index, y=abs(sec.brvr), name="r", line=dict(color=get_colour(1))),
-            go.Scatter(x=sec.data.index, y=sec.brvp, name="p", line=dict(color=get_colour(2))),
-            go.Scatter(x=sec.data.index, y=abs(sec.brvy), name="y", line=dict(color=get_colour(3)))]
-    else:
-        return [
-            go.Scatter(x=sec.data.index, y=sec.brvr, name="r", line=dict(color=get_colour(1))),
-            go.Scatter(x=sec.data.index, y=sec.brvp, name="p", line=dict(color=get_colour(1))),
-            go.Scatter(x=sec.data.index, y=sec.brvy, name="y", line=dict(color=get_colour(1)))]
 
+def sec_col_trace(sec, columns, dash="solid", colours = px.colors.qualitative.Plotly, yfunc=lambda x: x):
+    trs = []
+    for i, axis in enumerate(columns):
+        trs.append(
+            go.Scatter(
+                x=sec.data.index, 
+                y=yfunc(sec.data[axis]), 
+                name=axis, 
+                line=dict(color=colours[i], dash=dash)
+            ))
+    return trs
+
+
+def axis_rate_trace(sec, dash="solid", colours = px.colors.qualitative.Plotly):
+    return sec_col_trace(sec, sec.brvel.columns, dash, colours, np.degrees) 
+
+
+control_inputs =  ["aileron_1", "aileron_2", "elevator", "rudder", "throttle"]
+
+def control_input_trace(sec, dash="solid", colours = [px.colors.qualitative.Plotly[0]] + px.colors.qualitative.Plotly):
+    return sec_col_trace(sec,control_inputs, dash, colours)
+
+
+def aoa_trace(sec, dash="dash", colours = px.colors.qualitative.Plotly):
+    sec = sec.append_columns(sec.aoa())
+    return sec_col_trace(sec, ["alpha", "beta"], dash, colours, np.degrees)
 
 def _axistrace(cid):
     return trace3d(*cid.get_plot_df(20).to_numpy().T)
