@@ -113,7 +113,7 @@ def aoa_brv_plot(sec):
     fig.add_traces(aoa_trace(sec, colours=px.colors.qualitative.Plotly[4:]), secondary_ys=np.full(2, True))
     fig.update_layout(
         xaxis=dict(title="time, s"),
-        yaxis=dict(title="axis rate, rad/s"),
+        yaxis=dict(title="axis rate, deg/s"),
         yaxis2=dict(title="angle of attach, deg"),
         **nb_layout
     )
