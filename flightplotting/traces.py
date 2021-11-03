@@ -207,7 +207,7 @@ def _npinterzip(a, b):
     return c
 
 
-def ribbon(sec: Section, span: float):
+def ribbon(sec: Section, span: float, color: str, name="none"):
     """WIP Vectorised version of ribbon, borrowed from kdoaij/FlightPlotting
 
         refactoring ribbon, objectives:
@@ -233,10 +233,11 @@ def ribbon(sec: Section, span: float):
     _ks = np.array(range(2, points.count -1 , 2))
     _k = _npinterzip(_ks, _ks) # 2 2 4 4 6 6 
 
+
     return [go.Mesh3d(
         x=points.x, y=points.y, z=points.z, i=_i, j=_j, k=_k,
         intensitymode="cell",
-        #facecolor=np.full(len(triids), "red"),
-        #showlegend=True,
-        hoverinfo="none"
+        facecolor=np.full(len(triids), color),
+        #hoverinfo=name,
+        name=name,
     )]

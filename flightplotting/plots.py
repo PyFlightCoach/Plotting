@@ -9,7 +9,8 @@ from flightplotting.traces import (
     axis_rate_trace, 
     aoa_trace, 
     dtwtrace,
-    control_inputs
+    control_inputs,
+    ribbon
 )
     
 from flightanalysis import Section
@@ -18,8 +19,14 @@ from flightplotting.model import obj, OBJ
 import numpy as np
 
 
-def plotsec(sec, scale=10, nmodels=20, fig=None, color="orange", obj: OBJ=obj, width=None, height=None, show_axes=False):
-    traces = tiptrace(sec, scale * 1.85)
+def plotsec(sec, scale=5, nmodels=0, fig=None, color="orange", obj: OBJ=obj, width=None, height=None, show_axes=False, ribb: bool=True, tips: bool=True):
+    traces = []
+    if ribb:
+        traces += ribbon(sec, scale * 1.85, color)
+    
+    if tips:
+        traces += tiptrace(sec, scale * 1.85)
+    
     if nmodels > 0:
         traces += meshes(nmodels, sec, color, obj.scale(scale))
 
@@ -43,15 +50,14 @@ def plotsec(sec, scale=10, nmodels=20, fig=None, color="orange", obj: OBJ=obj, w
         if not height is None:
             fig.update_layout(height=height)
     else:
-        for trace in traces:
-            fig.add_trace(trace)
+        fig.add_traces(traces)
     return fig
 
 
-def plotdtw(sec: Section, manoeuvres):
+def plotdtw(sec: Section, manoeuvres, span=3):
     fig = go.Figure()
 
-    traces = tiptrace(sec, 10)
+    traces = []#tiptrace(sec, span)
 
     for i, man in enumerate(manoeuvres):
         try:
@@ -60,10 +66,13 @@ def plotdtw(sec: Section, manoeuvres):
                 name=man.name
             except AttributeError:
                 name = "element {}".format(i)
+
+            traces += ribbon(seg, span, px.colors.qualitative.Alphabet[i], name)
+
             traces.append(go.Scatter3d(x=seg.pos.x, y=seg.pos.y, z=seg.pos.z,
-                                mode='lines', line=dict(width=6), name=name))
-        except:
-            print("no data for manoeuvre {}".format(man.name))
+                                mode='lines', line=dict(width=6, color=px.colors.qualitative.Alphabet[i]), name=name))
+        except Exception as ex:
+            print("no data for manoeuvre {}, {}".format(man.name, ex))
     fig = go.Figure(
         data=traces,
         layout=go.Layout(template="flight3d+judge_view")
