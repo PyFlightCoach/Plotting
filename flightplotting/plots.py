@@ -19,7 +19,7 @@ from flightplotting.model import obj, OBJ
 import numpy as np
 
 
-def plotsec(sec, scale=5, nmodels=0, fig=None, color="orange", obj: OBJ=obj, width=None, height=None, show_axes=False, ribb: bool=True, tips: bool=True):
+def plotsec(sec, scale=5, nmodels=0, fig=None, color="orange", obj: OBJ=obj, width=None, height=None, show_axes=False, ribb: bool=False, tips: bool=True):
     traces = []
     if ribb:
         traces += ribbon(sec, scale * 1.85, color)
@@ -108,7 +108,7 @@ def control_brv_plot(sec):
 
     fig.update_layout(
         xaxis=dict(title="time, s"),
-        yaxis=dict(title="axis rate rad/s",range=(-rvrng, rvrng)),
+        yaxis=dict(title="axis rate deg/s",range=(-rvrng, rvrng)),
         yaxis2=dict(title="control pwm offset, ms",range=(-cirng, cirng)),
         **nb_layout
     )
