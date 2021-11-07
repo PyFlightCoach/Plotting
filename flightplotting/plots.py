@@ -140,3 +140,26 @@ def compare_3d(sec1, sec2):
     fig.add_traces(templtr, cols = [2 for i in range(len(templtr))], rows=[1 for i in range(len(templtr))] )
     fig.update_layout(template="flight3d", showlegend=False)
     return fig
+
+
+def grid3dplot(plots):
+    """takes an n*m list of lists of 3d figures, puts them into a n*m subplot grid"""
+
+    nrows = len(plots)
+    ncols = len(plots[0])
+
+    fig = make_subplots(
+        cols=len(plots[0]),
+        rows=len(plots),
+        specs=[[{"type": "scene"} for i in range(ncols)] for j in range(nrows)]
+    )
+
+    sceneids = ["scene{}".format(i+1) for i in range(ncols*nrows)]
+    sceneids[0] = "scene"
+    fig.update_layout(**{"scene{}".format(i+1 if i>0 else ""):dict(aspectmode='data') for i in range(ncols*nrows)})
+    
+    for ir, plotrow in enumerate(plots):
+        for ic, plot in enumerate(plotrow):
+            fig.add_traces(plot.data, cols=np.full(len(plot.data), ic+1).tolist(), rows=np.full(len(plot.data), ir+1).tolist())
+    
+    return fig
