@@ -74,7 +74,8 @@ def plotdtw(sec: Section, manoeuvres, span=3):
             traces.append(go.Scatter3d(x=seg.pos.x, y=seg.pos.y, z=seg.pos.z,
                                 mode='lines', line=dict(width=6, color=px.colors.qualitative.Alphabet[i]), name=name))
         except Exception as ex:
-            print("no data for manoeuvre {}, {}".format(name, ex))
+            pass
+            #print("no data for manoeuvre {}, {}".format(name, ex))
     fig = go.Figure(
         data=traces,
         layout=go.Layout(template="flight3d+judge_view")
