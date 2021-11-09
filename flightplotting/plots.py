@@ -124,9 +124,9 @@ def aoa_brv_plot(sec):
     fig.add_traces(axis_rate_trace(sec), secondary_ys=np.full(3, False))
     fig.add_traces(aoa_trace(sec, colours=px.colors.qualitative.Plotly[4:]), secondary_ys=np.full(2, True))
     fig.update_layout(
-        xaxis=dict(title="time, s"),
-        yaxis=dict(title="axis rate, deg/s"),
-        yaxis2=dict(title="angle of attach, deg"),
+        xaxis=dict(title="Time (s)"),
+        yaxis=dict(title="Axis Rate (deg/s)"),
+        yaxis2=dict(title="Angle of Attack (deg)"),
         **nb_layout
     )
     return fig
@@ -164,3 +164,33 @@ def grid3dplot(plots):
             fig.add_traces(plot.data, cols=np.full(len(plot.data), ic+1).tolist(), rows=np.full(len(plot.data), ir+1).tolist())
     
     return fig
+
+axis = dict(
+    gridcolor="lightgrey", 
+    linewidth=2, 
+    linecolor='lightgrey',
+    zerolinewidth=2,
+    zerolinecolor='lightgrey',
+    showline=True
+)
+
+
+aiaa_layout = dict(
+    margin=dict(l=1, r=1, t=5, b=1), 
+    legend=dict(yanchor="top", xanchor="left", x=0.8, y=0.99),
+    font_family="Times New Roman",
+    font_size=18,plot_bgcolor='rgba(0,0,0,0)',
+ #   xaxis=dict(**axis),
+ #   yaxis=dict(range=(-100,700), **axis),
+ #   yaxis2=dict(range=(-100/20,700/20), **axis),
+)
+
+aiaa_full_width = dict(width=1200,**aiaa_layout)
+aiaa_half_width = dict(width=600,**aiaa_layout)
+
+aiaa_axis_rates = dict(
+    xaxis=dict(range=(0,1.1), **axis),
+    yaxis=dict(range=(-100,700), **axis),
+    yaxis2=dict(range=(-100/20,700/20), **axis),
+    **aiaa_half_width
+)
