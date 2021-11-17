@@ -169,7 +169,7 @@ def control_input_trace(sec, dash="solid", colours = [px.colors.qualitative.Plot
 
 
 def aoa_trace(sec, dash="dash", colours = px.colors.qualitative.Plotly):
-    sec = sec.append_columns(sec.aoa())
+    #sec = sec.append_columns(sec.aoa())
     return sec_col_trace(sec, ["alpha", "beta"], dash, colours, np.degrees)
 
 def _axistrace(cid):
