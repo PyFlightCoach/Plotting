@@ -98,7 +98,7 @@ nb_layout = dict(
 )
 
 
-def control_brv_plot(sec):
+def control_brv_plot(sec, control_inputs = ["aileron", "elevator", "rudder", "throttle"]):
     """create a nice 2d plot showing control inputs and rotational velocities for a section"""
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 

@@ -164,7 +164,9 @@ def axis_rate_trace(sec, dash="solid", colours = px.colors.qualitative.Plotly):
 
 control_inputs =  ["aileron_1", "aileron_2", "elevator", "rudder", "throttle"]
 
-def control_input_trace(sec, dash="solid", colours = [px.colors.qualitative.Plotly[0]] + px.colors.qualitative.Plotly):
+def control_input_trace(sec, dash="solid", colours = px.colors.qualitative.Plotly, control_inputs = None):
+    if control_inputs is None:
+        control_inputs =  ["aileron", "elevator", "rudder", "throttle"]
     return sec_col_trace(sec,control_inputs, dash, colours)
 
 
