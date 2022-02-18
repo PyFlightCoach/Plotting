@@ -42,8 +42,26 @@ def meshes(npoints, seq, colour, obj: OBJ=obj):
         ) for i in range(0, npoints+1)
     ]
 
+def vectors(npoints: int, seq: Section, vectors: Points, color="black"):
+    # TODO these dont quite line up with the meshes
+    trs = []
+    step = int(len(seq.data) / (npoints+1))
+    for pos, wind in zip(seq.gpos[::step], vectors[::step]):
+        pdata = Points(np.stack([pos.to_list(), (pos+wind).to_list()]))
+        trs.append(go.Scatter3d(
+            x=pdata.x, 
+            y=pdata.y, 
+            z=pdata.z, 
+            mode="lines", 
+            line=dict(color="black"), 
+            showlegend=False
+        ))
+    
+    return trs
 
-def trace3d(datax, datay, dataz, colour='black', width=2, text=None, name="trace3d"):
+
+
+def trace3d(datax, datay, dataz, colour='black', width=2, text=None, name="trace3d", showlegend=False):
     return go.Scatter3d(
         x=datax,
         y=datay,
@@ -52,16 +70,18 @@ def trace3d(datax, datay, dataz, colour='black', width=2, text=None, name="trace
         mode='lines',
         text=text,
         hoverinfo="text",
-        name=name
+        name=name,
+        showlegend=False
     )
 
 
-def cgtrace(seq, name="cgtrace"):
+def cgtrace(seq, name="cgtrace", showlegend=False):
     return trace3d(
         *seq.pos.to_numpy().T,
         colour="black",
         text=["{:.1f}".format(val) for val in seq.data.index],
-        name=name
+        name=name,
+        showlegend=showlegend
     )
 
 def manoeuvretraces(schedule: Schedule, section: Section):
@@ -160,6 +180,10 @@ def sec_col_trace(sec, columns, dash="solid", colours = px.colors.qualitative.Pl
 
 def axis_rate_trace(sec, dash="solid", colours = px.colors.qualitative.Plotly):
     return sec_col_trace(sec, sec.brvel.columns, dash, colours, np.degrees) 
+
+
+
+
 
 
 control_inputs =  ["aileron_1", "aileron_2", "elevator", "rudder", "throttle"]
