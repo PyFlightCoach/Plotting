@@ -33,9 +33,7 @@ def meshes(npoints, seq, colour, obj: OBJ=obj):
     end = seq.data.index[-1]
     return [
         obj.transform(
-            seq.get_state_from_time(
-                start + (end-start) * i / npoints
-            ).transform
+            seq[start + (end-start) * i / npoints].transform
         ).create_mesh(
             colour,
             "{:.1f}".format(start + (end-start) * i / npoints)
