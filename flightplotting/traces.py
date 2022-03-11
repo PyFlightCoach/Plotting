@@ -29,16 +29,9 @@ def boxtrace():
 
 
 def meshes(npoints, seq, colour, obj: OBJ=obj):
-    start = seq.data.index[0]
-    end = seq.data.index[-1]
-    return [
-        obj.transform(
-            seq[start + (end-start) * i / npoints].transform
-        ).create_mesh(
-            colour,
-            "{:.1f}".format(start + (end-start) * i / npoints)
-        ) for i in range(0, npoints+1)
-    ]
+    step = int(len(seq.data) / (npoints+1))
+    
+    return [obj.transform(st.transform).create_mesh(colour,f"{st.time:.1f}") for st in seq[::step]]
 
 def vectors(npoints: int, seq: Section, vectors: Points, color="black"):
     # TODO these dont quite line up with the meshes

@@ -10,7 +10,8 @@ from flightplotting.traces import (
     aoa_trace, 
     dtwtrace,
     control_inputs,
-    ribbon
+    ribbon,
+    vectors
 )
     
 from flightanalysis import Section
@@ -164,6 +165,32 @@ def grid3dplot(plots):
             fig.add_traces(plot.data, cols=np.full(len(plot.data), ic+1).tolist(), rows=np.full(len(plot.data), ir+1).tolist())
     
     return fig
+
+
+
+def plot_analysis(analysis, obj=obj, nmodels=20, scale=4):
+
+    obj = obj.scale(scale)
+
+    fig = go.Figure()
+
+    
+    fig.add_traces(tiptrace(analysis.body, scale*1.85))
+    fig.add_traces(vectors(nmodels, analysis.body, analysis.environment.gwind))
+    
+    fig.add_traces(meshes(nmodels,analysis.judge, "blue", obj))
+    fig.add_traces(meshes(nmodels,analysis.wind, "red", obj))
+    fig.add_traces(meshes(nmodels,analysis.body, "green", obj))
+    
+    fig.update_layout(
+                scene=dict(
+                aspectmode='data',
+                xaxis=dict(visible=True, showticklabels=True),
+                yaxis=dict(visible=True, showticklabels=True),
+                zaxis=dict(visible=True, showticklabels=True)
+            ), height=800)
+    return fig
+
 
 axis = dict(
     gridcolor="lightgrey", 
