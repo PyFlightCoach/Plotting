@@ -14,8 +14,7 @@ from flightplotting.traces import (
     vectors
 )
     
-from flightanalysis import Section
-from flightanalysis.schedule import Manoeuvre
+from flightanalysis import State, Manoeuvre
 from flightplotting.model import obj, OBJ
 import numpy as np
 
@@ -55,7 +54,7 @@ def plotsec(sec, scale=5, nmodels=0, fig=None, color="orange", obj: OBJ=obj, wid
     return fig
 
 
-def plotdtw(sec: Section, manoeuvres, span=3):
+def plotdtw(sec: State, manoeuvres, span=3):
     fig = go.Figure()
 
     traces = []#tiptrace(sec, span)

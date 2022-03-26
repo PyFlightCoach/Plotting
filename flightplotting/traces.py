@@ -1,12 +1,12 @@
 import plotly.graph_objects as go
 import flightplotting.templates
 from .model import OBJ
-from geometry import Point, Coord
+from geometry import Point, Coord, Transformation
 import numpy as np
 from typing import List, Union
 from math import cos, sin, tan, radians
-from geometry import Points
-from flightanalysis import Section
+
+from flightanalysis import State
 from flightanalysis.schedule import Manoeuvre, Schedule
 from flightplotting.model import obj, OBJ
 import plotly.express as px
@@ -31,14 +31,15 @@ def boxtrace():
 def meshes(npoints, seq, colour, obj: OBJ=obj):
     step = int(len(seq.data) / (npoints+1))
     
-    return [obj.transform(st.transform).create_mesh(colour,f"{st.time:.1f}") for st in seq[::step]]
+    return [obj.transform(Transformation(st.pos, st.att)).create_mesh(colour,f"{st.time.t[0]:.1f}") for st in seq[::step]]
 
-def vectors(npoints: int, seq: Section, vectors: Points, color="black"):
+
+def vectors(npoints: int, seq: State, vectors: Point, color="black"):
     # TODO these dont quite line up with the meshes
     trs = []
     step = int(len(seq.data) / (npoints+1))
     for pos, wind in zip(seq.gpos[::step], vectors[::step]):
-        pdata = Points(np.stack([pos.to_list(), (pos+wind).to_list()]))
+        pdata = Point(np.stack([pos.to_list(), (pos+wind).to_list()]))
         trs.append(go.Scatter3d(
             x=pdata.x, 
             y=pdata.y, 
@@ -75,7 +76,7 @@ def cgtrace(seq, name="cgtrace", showlegend=False):
         showlegend=showlegend
     )
 
-def manoeuvretraces(schedule: Schedule, section: Section):
+def manoeuvretraces(schedule: Schedule, section: State):
     traces = []
     for man in schedule.manoeuvres:
         manoeuvre = man.get_data(section)
@@ -92,7 +93,7 @@ def manoeuvretraces(schedule: Schedule, section: Section):
     return traces
 
 
-def elementtraces(manoeuvre: Manoeuvre, sec: Section):
+def elementtraces(manoeuvre: Manoeuvre, sec: State):
     traces = []
     for id, element in enumerate(manoeuvre.elements):
         elm = element.get_data(sec)
@@ -131,7 +132,7 @@ def tiptrace(seq, span):
 
 get_colour = lambda i : DEFAULT_PLOTLY_COLORS[i % len(DEFAULT_PLOTLY_COLORS)]  
 from plotly.colors import DEFAULT_PLOTLY_COLORS
-def dtwtrace(sec: Section, elms, showlegend = True):
+def dtwtrace(sec: State, elms, showlegend = True):
     traces = tiptrace(sec, 10)
 
     
@@ -224,7 +225,7 @@ def _npinterzip(a, b):
     return c
 
 
-def ribbon(sec: Section, span: float, color: str, name="none"):
+def ribbon(sec: State, span: float, color: str, name="none"):
     """WIP Vectorised version of ribbon, borrowed from kdoaij/FlightPlotting
 
         refactoring ribbon, objectives:
@@ -239,7 +240,7 @@ def ribbon(sec: Section, span: float, color: str, name="none"):
     left = sec.body_to_world(Point(0, span/2, 0))
     right = sec.body_to_world(Point(0, -span/2, 0))
 
-    points = Points(_npinterzip(left.data, right.data))
+    points = Point(_npinterzip(left.data, right.data))
 
     triids = np.array(range(points.count - 2))
     _i = triids   # 1 2 3 4 5
