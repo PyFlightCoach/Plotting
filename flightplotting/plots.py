@@ -175,7 +175,7 @@ def plot_analysis(analysis, obj=obj, nmodels=20, scale=4):
 
     
     fig.add_traces(tiptrace(analysis.body, scale*1.85))
-    fig.add_traces(vectors(nmodels, analysis.body, analysis.environment.wind))
+    fig.add_traces(vectors(nmodels, analysis.body, analysis.environment.wind * scale / 3))
     
     fig.add_traces(meshes(nmodels,analysis.judge, "blue", obj))
     fig.add_traces(meshes(nmodels,analysis.wind, "red", obj))
