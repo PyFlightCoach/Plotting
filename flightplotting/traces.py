@@ -37,8 +37,8 @@ def vectors(npoints: int, seq: State, vectors: Point, color="black"):
     # TODO these dont quite line up with the meshes
     trs = []
     step = int(len(seq.data) / (npoints+1))
-    for pos, wind in zip(seq.gpos[::step], vectors[::step]):
-        pdata = Point(np.stack([pos.to_list(), (pos+wind).to_list()]))
+    for pos, wind in zip(seq.pos[::step], vectors[::step]):
+        pdata = Point(np.stack([pos.data, (pos+wind).data]))
         trs.append(go.Scatter3d(
             x=pdata.x, 
             y=pdata.y, 
