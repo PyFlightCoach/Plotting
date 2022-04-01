@@ -4,7 +4,6 @@ from .model import OBJ
 from geometry import Point, Coord, Transformation
 import numpy as np
 from typing import List, Union
-from math import cos, sin, tan, radians
 
 from flightanalysis import State
 from flightanalysis.schedule import Manoeuvre, Schedule
@@ -14,7 +13,7 @@ import plotly.express as px
 
 
 def boxtrace():
-    xlim=170*tan(radians(60))
+    xlim=170*np.tan(np.radians(60))
     ylim=170
     return [go.Mesh3d(
         #  0  1     2     3      4    5      6
