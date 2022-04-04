@@ -10,6 +10,7 @@ from flightplotting.traces import (
     aoa_trace, 
     dtwtrace,
     control_inputs,
+    cgtrace,
     ribbon,
     vectors
 )
@@ -19,7 +20,7 @@ from flightplotting.model import obj, OBJ
 import numpy as np
 
 
-def plotsec(sec, scale=5, nmodels=0, fig=None, color="orange", obj: OBJ=obj, width=None, height=None, show_axes=False, ribb: bool=False, tips: bool=True):
+def plotsec(sec, scale=5, nmodels=0, fig=None, color="orange", obj: OBJ=obj, cg=False, width=None, height=None, show_axes=False, ribb: bool=False, tips: bool=True):
     traces = []
     if ribb:
         traces += ribbon(sec, scale * 1.85, color)
@@ -29,6 +30,9 @@ def plotsec(sec, scale=5, nmodels=0, fig=None, color="orange", obj: OBJ=obj, wid
     
     if nmodels > 0:
         traces += meshes(nmodels, sec, color, obj.scale(scale))
+
+    if cg:
+        traces += cgtrace(sec)
 
     if fig is None:
 
@@ -167,14 +171,17 @@ def grid3dplot(plots):
 
 
 
-def plot_analysis(analysis, obj=obj, nmodels=20, scale=4):
+def plot_analysis(analysis, obj=obj, nmodels=20, scale=4, cg=False, tip=True, fig=None, **kwargs):
 
     obj = obj.scale(scale)
 
-    fig = go.Figure()
+    fig = go.Figure() if not fig else fig
 
+    if cg:
+        fig.add_traces(cgtrace(analysis.body, **kwargs))
+    if tip:
+        fig.add_traces(tiptrace(analysis.body, scale*1.85))
     
-    fig.add_traces(tiptrace(analysis.body, scale*1.85))
     fig.add_traces(vectors(nmodels, analysis.body, analysis.environment.wind * scale / 3))
     
     fig.add_traces(meshes(nmodels,analysis.judge, "blue", obj))

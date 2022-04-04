@@ -33,61 +33,49 @@ def meshes(npoints, seq, colour, obj: OBJ=obj):
     return [obj.transform(Transformation(st.pos, st.att)).create_mesh(colour,f"{st.time.t[0]:.1f}") for st in seq[::step]]
 
 
-def vectors(npoints: int, seq: State, vectors: Point, color="black"):
-    # TODO these dont quite line up with the meshes
+def vectors(npoints: int, seq: State, vectors: Point, **kwargs):
     trs = []
     step = int(len(seq.data) / (npoints+1))
     for pos, wind in zip(seq.pos[::step], vectors[::step]):
         pdata = Point.concatenate([pos, pos+wind])
-        trs.append(go.Scatter3d(
-            x=pdata.x, 
-            y=pdata.y, 
-            z=pdata.z, 
-            mode="lines", 
-            line=dict(color="black"), 
-            showlegend=False
-        ))
-    
+        trs.append(trace3d(*pdata.data.T, **kwargs))    
     return trs
 
 
 
-def trace3d(datax, datay, dataz, colour='black', width=2, text=None, name="trace3d", showlegend=False):
+def trace3d(datax, datay, dataz, **kwargs):
     return go.Scatter3d(
         x=datax,
         y=datay,
         z=dataz,
-        line=dict(color=colour, width=width),
-        mode='lines',
-        text=text,
-        hoverinfo="text",
-        name=name,
-        showlegend=False
+        **dict(
+            dict(
+                mode='lines',
+                line=dict(color="black", width=2, dash="solid"),
+                showlegend=False
+            ),
+            **kwargs
+        )
     )
 
 
-def cgtrace(seq, name="cgtrace", showlegend=False):
+def cgtrace(seq, **kwargs):
     return trace3d(
-        *seq.pos.to_numpy().T,
-        colour="black",
-        text=["{:.1f}".format(val) for val in seq.data.index],
-        name=name,
-        showlegend=showlegend
+        *seq.pos.data.T,
+        **dict(
+            dict(
+                text=["{:.1f}".format(val) for val in seq.data.index]
+            ),
+            **kwargs
+        )
     )
 
-def manoeuvretraces(schedule: Schedule, section: State):
+
+def manoeuvretraces(schedule: Schedule, section: State, colours = px.colors.qualitative.Plotly):
     traces = []
-    for man in schedule.manoeuvres:
-        manoeuvre = man.get_data(section)
-        traces.append(go.Scatter3d(
-            x=manoeuvre.x,
-            y=manoeuvre.y,
-            z=manoeuvre.z,
-            mode='lines',
-            text=manoeuvre.element,
-            hoverinfo="text",
-            name=man.name
-        ))
+    for man, color in zip(schedule.manoeuvres, colours):
+        st = man.get_data(section)
+        traces.append(cgtrace(st), color=color, hoverinfo=man.name)
 
     return traces
 
@@ -110,22 +98,20 @@ def elementtraces(manoeuvre: Manoeuvre, sec: State):
 
 
 
-def tiptrace(seq, span):
+def tiptrace(seq, span, **kwargs):
     text = ["{:.1f}".format(val) for val in seq.data.index]
 
-    def make_offset_trace(pos, colour, text):
+    def make_offset_trace(pos, colour):
         tr =  trace3d(
             *seq.body_to_world(pos).data.T,
-            colour=colour,
-            text=text,
-            width=1
+            **dict(dict(line=dict(color=colour, width=1)), **kwargs)
         )
         tr['showlegend'] = False
         return tr
 
     return [
-        make_offset_trace(Point(0, span/2, 0), "blue", text),
-        make_offset_trace(Point(0, -span/2, 0), "red", text)
+        make_offset_trace(Point(0, span/2, 0), "blue"),
+        make_offset_trace(Point(0, -span/2, 0), "red")
     ]
 
 
