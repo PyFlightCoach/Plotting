@@ -21,18 +21,19 @@ import numpy as np
 
 
 def plotsec(sec, scale=5, nmodels=0, fig=None, color="orange", obj: OBJ=obj, cg=False, width=None, height=None, show_axes=False, ribb: bool=False, tips: bool=True):
+    text = ["{:.1f}".format(val) for val in sec.data.index]
     traces = []
     if ribb:
         traces += ribbon(sec, scale * 1.85, color)
     
     if tips:
-        traces += tiptrace(sec, scale * 1.85)
+        traces += tiptrace(sec, scale * 1.85, text=text)
     
     if nmodels > 0:
         traces += meshes(nmodels, sec, color, obj.scale(scale))
 
     if cg:
-        traces += cgtrace(sec)
+        traces += cgtrace(sec, text=text)
 
     if fig is None:
 
