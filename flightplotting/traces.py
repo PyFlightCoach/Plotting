@@ -227,13 +227,13 @@ def ribbon(sec: State, span: float, color: str, name="none"):
 
     points = Point(_npinterzip(left.data, right.data))
 
-    triids = np.array(range(points.count - 2))
+    triids = np.array(range(len(points) - 2))
     _i = triids   # 1 2 3 4 5
 
-    _js = np.array(range(1, points.count, 2))
+    _js = np.array(range(1, len(points), 2))
     _j = _npinterzip(_js, _js)[1:-1] # 1 3 3 4 4 5 
 
-    _ks = np.array(range(2, points.count -1 , 2))
+    _ks = np.array(range(2, len(points) -1 , 2))
     _k = _npinterzip(_ks, _ks) # 2 2 4 4 6 6 
 
 

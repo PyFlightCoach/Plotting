@@ -65,22 +65,26 @@ def plotdtw(sec: State, manoeuvres, span=3):
     traces = []#tiptrace(sec, span)
 
     for i, man in enumerate(manoeuvres):
-        try:
-            name=man.name
-        except AttributeError:
-            name = "element {}".format(i)
         
+        name=man.name if hasattr(man, 'name') else "element {}".format(i)
         try:
+            
             seg = man.get_data(sec)
             
 
             traces += ribbon(seg, span, px.colors.qualitative.Alphabet[i], name)
 
-            traces.append(go.Scatter3d(x=seg.pos.x, y=seg.pos.y, z=seg.pos.z,
-                                mode='lines', line=dict(width=6, color=px.colors.qualitative.Alphabet[i]), name=name))
+            traces.append(go.Scatter3d(
+                x=seg.pos.x, 
+                y=seg.pos.y, 
+                z=seg.pos.z,
+                mode='lines', 
+                line=dict(width=6, color=px.colors.qualitative.Alphabet[i]), 
+                name=name
+            ))
         except Exception as ex:
             pass
-            #print("no data for manoeuvre {}, {}".format(name, ex))
+            print("no data for manoeuvre {}, {}".format(name, ex))
     fig = go.Figure(
         data=traces,
         layout=go.Layout(template="flight3d+judge_view")
