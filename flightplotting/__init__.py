@@ -1,3 +1,3 @@
 
 
-from flightplotting.plots import plotsec, plot_analysis
+from flightplotting.plots import plotsec, plot_analysis, plotdtw
