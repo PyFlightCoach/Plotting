@@ -39,7 +39,7 @@ def plotsec(sec, scale=5, nmodels=0, fig=None, color="orange", obj: OBJ=obj, cg=
 
         fig = go.Figure(
             data=traces,
-            layout=go.Layout(template="flight3d+judge_view")
+            layout=go.Layout(template="flight3d+judge_view", uirevision='foo')
         )
         if show_axes:
             fig.update_layout(
@@ -57,6 +57,7 @@ def plotsec(sec, scale=5, nmodels=0, fig=None, color="orange", obj: OBJ=obj, cg=
     else:
         fig.add_traces(traces)
     return fig
+
 
 
 def plotdtw(sec: State, manoeuvres, span=3):

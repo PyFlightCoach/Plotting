@@ -23,6 +23,6 @@ pio.templates["flight3d"] = go.layout.Template(layout=go.Layout(
 pio.templates["judge_view"] = go.layout.Template(layout=go.Layout(scene_camera=dict(
     up=dict(x=0, y=0, z=1),
     center=dict(x=0, y=0, z=-0.2),
-    eye=dict(x=0.0, y=-2.3, z=-0.8),
+    eye=dict(x=0.0, y=-3, z=-0.8),
     projection=dict(type='perspective')
 )))
