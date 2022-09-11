@@ -1,10 +1,10 @@
 import numpy as np
 import plotly.graph_objects as go
-from geometry import Transformation, Quaternion, Point, Points
+from geometry import Transformation, Quaternion, Point
 from pkg_resources import resource_stream
 
 class OBJ(object):
-    def __init__(self, vertices: Points, faces: np.ndarray):
+    def __init__(self, vertices: Point, faces: np.ndarray):
         self.vertices = vertices
         self.faces = faces
     
@@ -37,7 +37,7 @@ class OBJ(object):
                 else:
                     pass
 
-        return OBJ(Points(np.array(vertices)), np.array(faces))
+        return OBJ(Point(np.array(vertices)), np.array(faces))
 
     @staticmethod
     def from_obj_file(file):

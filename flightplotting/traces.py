@@ -175,8 +175,18 @@ def aoa_trace(sec, dash="dash", colours = px.colors.qualitative.Plotly):
     #sec = sec.append_columns(sec.aoa())
     return sec_col_trace(sec, ["alpha", "beta"], dash, colours, np.degrees)
 
-def _axistrace(cid):
-    return trace3d(*cid.get_plot_df(20).to_numpy().T)
+def _axistrace(cid: Coord, length:float=20.0):
+    ntraces = []
+    colours = {"x":"red", "y":"blue", "z":"green"}
+    for ax, col in zip([cid.x_axis, cid.y_axis, cid.z_axis], list("xyz")):
+        axis = Point.concatenate([cid.origin, cid.origin + ax * length])
+        ntraces.append(go.Scatter3d(
+            x=axis.x, y=axis.y, z=axis.z, mode="lines", 
+            line=dict(color=colours[col]),
+            name=col
+        ))
+        
+    return ntraces
 
 def axestrace(cids: Union[Coord, List[Coord]]):
     if isinstance(cids, List):
