@@ -117,6 +117,7 @@ def tiptrace(seq, span, **kwargs):
 
 get_colour = lambda i : DEFAULT_PLOTLY_COLORS[i % len(DEFAULT_PLOTLY_COLORS)]  
 from plotly.colors import DEFAULT_PLOTLY_COLORS
+
 def dtwtrace(sec: State, elms, showlegend = True):
     traces = tiptrace(sec, 10)
 
@@ -156,7 +157,7 @@ def sec_col_trace(sec, columns, dash="solid", colours = px.colors.qualitative.Pl
 
 
 def axis_rate_trace(sec, dash="solid", colours = px.colors.qualitative.Plotly):
-    return sec_col_trace(sec, sec.brvel.columns, dash, colours, np.degrees) 
+    return sec_col_trace(sec, sec.constructs.rvel.keys, dash, colours, np.degrees) 
 
 
 
