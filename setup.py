@@ -12,14 +12,4 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 from setuptools import setup
 
-setup(
-   name='flightplotting',
-   version='0.01',
-   description='Tools for Plotting Flight Data',
-   author='Thomas David',
-   author_email='thomasdavid0@gmail.com',
-   packages=['flightplotting'],
-   include_package_data = True,
-   package_data = {'': ['data/*.obj']},
-   install_requires=['numpy', 'pandas', 'plotly'],
-)
+setup()
