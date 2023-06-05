@@ -66,13 +66,15 @@ def plotdtw(sec: State, manoeuvres, span=3):
     traces = []#tiptrace(sec, span)
 
     for i, man in enumerate(manoeuvres):
-        
-        name=man.name if hasattr(man, 'name') else "element {}".format(i)
-        try:
-            
-            seg = man.get_data(sec)
-            
+        name = f"el {i}"
+        if hasattr(man, 'name'):
+            name=man.name
+        elif hasattr(man, "uid"): 
+            name = man.uid
 
+        try:
+            seg = man.get_data(sec)
+        
             traces += ribbon(seg, span, px.colors.qualitative.Alphabet[i], name)
 
             traces.append(go.Scatter3d(
