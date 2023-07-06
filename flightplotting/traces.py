@@ -27,10 +27,16 @@ def boxtrace():
     )]
 
 
-def meshes(npoints, seq, colour, obj: OBJ=obj):
-    step = int(len(seq.data) / (npoints+1))
+def meshes(npoints, seq: State, colour, obj: OBJ=obj):
+    step = int(len(seq.data) / max(npoints, 1))
     
-    return [obj.transform(Transformation(st.pos, st.att)).create_mesh(colour,f"{st.time.t[0]:.1f}") for st in seq[::step]]
+    ms = []
+
+    sts = [seq[0]] + [ st for st in seq[::step]] + [seq[-1]]
+    for st in sts:
+        ms.append(obj.transform(Transformation(st.pos, st.att)).create_mesh(colour,f"{st.time.t[0]:.1f}"))
+    return ms
+#    return [obj.transform(Transformation(st.pos, st.att)).create_mesh(colour,f"{st.time.t[0]:.1f}") for st in seq[::step]]
 
 
 def vectors(npoints: int, seq: State, vectors: Point, **kwargs):
@@ -161,9 +167,6 @@ def axis_rate_trace(sec, dash="solid", colours = px.colors.qualitative.Plotly):
 
 
 
-
-
-
 control_inputs =  ["aileron_1", "aileron_2", "elevator", "rudder", "throttle"]
 
 def control_input_trace(sec, dash="solid", colours = px.colors.qualitative.Plotly, control_inputs = None):
@@ -176,7 +179,7 @@ def aoa_trace(sec, dash="dash", colours = px.colors.qualitative.Plotly):
     #sec = sec.append_columns(sec.aoa())
     return sec_col_trace(sec, ["alpha", "beta"], dash, colours, np.degrees)
 
-def _axistrace(cid: Coord, length:float=20.0):
+def axestrace(cid: Coord, length:float=20.0):
     ntraces = []
     colours = {"x":"red", "y":"blue", "z":"green"}
     for ax, col in zip([cid.x_axis, cid.y_axis, cid.z_axis], list("xyz")):
@@ -189,11 +192,6 @@ def _axistrace(cid: Coord, length:float=20.0):
         
     return ntraces
 
-def axestrace(cids: Union[Coord, List[Coord]]):
-    if isinstance(cids, List):
-        return [_axistrace(cid) for cid in cids]
-    elif isinstance(cids, Coord):
-        return _axistrace(cids)
 
 
 
