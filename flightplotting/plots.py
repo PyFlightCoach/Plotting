@@ -18,6 +18,7 @@ from flightplotting.traces import (
 from flightanalysis import State, Manoeuvre
 from flightplotting.model import obj, OBJ
 import numpy as np
+from typing import List
 
 
 def plotsec(sec, scale=5, nmodels=0, fig=None, color="orange", obj: OBJ=obj, cg=False, width=None, height=None, show_axes=False, ribb: bool=False, tips: bool=True):
@@ -60,21 +61,15 @@ def plotsec(sec, scale=5, nmodels=0, fig=None, color="orange", obj: OBJ=obj, cg=
 
 
 
-def plotdtw(sec: State, manoeuvres, span=3):
+def plotdtw(sec: State, manoeuvres: List[str], span=3):
     fig = go.Figure()
 
     traces = []#tiptrace(sec, span)
 
-    for i, man in enumerate(manoeuvres):
-        name = f"el {i}"
-        if hasattr(man, 'name'):
-            name=man.name
-        elif hasattr(man, "uid"): 
-            name = man.uid
-
+    for i, name in enumerate(manoeuvres):
         try:
-            seg = man.get_data(sec)
-        
+            seg = sec.get_man_or_el(name)
+
             traces += ribbon(seg, span, px.colors.qualitative.Alphabet[i], name)
 
             traces.append(go.Scatter3d(
@@ -90,7 +85,7 @@ def plotdtw(sec: State, manoeuvres, span=3):
             print("no data for manoeuvre {}, {}".format(name, ex))
     fig = go.Figure(
         data=traces,
-        layout=go.Layout(template="flight3d+judge_view")
+        layout=go.Layout(template="flight3d+judge_view"),
     )
 
     return fig

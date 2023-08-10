@@ -39,6 +39,11 @@ def meshes(npoints, seq: State, colour, obj: OBJ=obj):
 #    return [obj.transform(Transformation(st.pos, st.att)).create_mesh(colour,f"{st.time.t[0]:.1f}") for st in seq[::step]]
 
 
+def vector(origin, direction, **kwargs):
+    pdata = Point.concatenate([origin, origin+direction])
+    return trace3d(*pdata.data.T, **kwargs)
+
+
 def vectors(npoints: int, seq: State, vectors: Point, **kwargs):
     trs = []
     step = int(len(seq.data) / (npoints+1))
@@ -236,8 +241,8 @@ def ribbon(sec: State, span: float, color: str, name="none"):
 
     points = Point(_npinterzip(left.data, right.data))
 
-    triids = np.array(range(len(points) - 2))
-    _i = triids   # 1 2 3 4 5
+    
+    _i = np.array(range(len(points) - 2))   # 1 2 3 4 5
 
     _js = np.array(range(1, len(points), 2))
     _j = _npinterzip(_js, _js)[1:-1] # 1 3 3 4 4 5 
@@ -249,7 +254,6 @@ def ribbon(sec: State, span: float, color: str, name="none"):
     return [go.Mesh3d(
         x=points.x, y=points.y, z=points.z, i=_i, j=_j, k=_k,
         intensitymode="cell",
-        facecolor=np.full(len(triids), color),
-        #hoverinfo=name,
+        facecolor=np.full(len(_i), color),
         name=name,
     )]
