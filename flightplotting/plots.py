@@ -12,29 +12,39 @@ from flightplotting.traces import (
     control_inputs,
     cgtrace,
     ribbon,
-    vectors
+    vectors,
+    axestrace
 )
     
 from flightanalysis import State, Manoeuvre
+from geometry import Coord
 from flightplotting.model import obj, OBJ
+from flightanalysis import State
 import numpy as np
-from typing import List
+from typing import List, Union
 
 
-def plotsec(sec, scale=5, nmodels=0, fig=None, color="orange", obj: OBJ=obj, cg=False, width=None, height=None, show_axes=False, ribb: bool=False, tips: bool=True):
-    text = ["{:.1f}".format(val) for val in sec.data.index]
+def plotsec(secs: Union[State, list[State]], scale=5, nmodels=0, fig=None, color: Union[str, list[str]]=None, obj: OBJ=obj, cg=False, width=None, height=None, show_axes=False, ribb: bool=False, tips: bool=True, origin=False):
+
     traces = []
-    if ribb:
-        traces += ribbon(sec, scale * 1.85, color)
-    
-    if tips:
-        traces += tiptrace(sec, scale * 1.85, text=text)
-    
-    if nmodels > 0:
-        traces += meshes(nmodels, sec, color, obj.scale(scale))
 
-    if cg:
-        traces += cgtrace(sec, text=text)
+    if isinstance(secs, State):
+        secs = [secs]
+
+    for i, sec in enumerate(secs):
+        text = ["{:.1f}".format(val) for val in sec.data.index]
+        _color = color if not color is None else px.colors.qualitative.Plotly[i]
+        if ribb:
+            traces += ribbon(sec, scale * 1.85, _color)
+        if tips:
+            traces += tiptrace(sec, scale * 1.85, text=text)
+        if nmodels > 0:
+            traces += meshes(nmodels, sec, _color, obj.scale(scale))
+        if cg:
+            traces += cgtrace(sec, text=text, color=_color)
+
+    if origin:
+        traces += axestrace(Coord.zero(), 50)
 
     if fig is None:
 
