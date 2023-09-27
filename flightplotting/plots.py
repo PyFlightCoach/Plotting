@@ -24,7 +24,9 @@ import numpy as np
 from typing import List, Union
 
 
-def plotsec(secs: Union[State, list[State]], scale=5, nmodels=0, fig=None, color: Union[str, list[str]]=None, obj: OBJ=obj, cg=False, width=None, height=None, show_axes=False, ribb: bool=False, tips: bool=True, origin=False):
+def plotsec(secs: Union[State, list[State]], scale=5, nmodels=0, fig=None, 
+            color: Union[str, list[str]]=None, obj: OBJ=obj, cg=False, width=None, 
+            height=None, show_axes=False, ribb: bool=False, tips: bool=True, origin=False):
 
     traces = []
 

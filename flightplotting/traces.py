@@ -36,8 +36,6 @@ def meshes(npoints, seq: State, colour, obj: OBJ=obj):
     for st in sts:
         ms.append(obj.transform(Transformation(st.pos, st.att)).create_mesh(colour,f"{st.time.t[0]:.1f}"))
     return ms
-#    return [obj.transform(Transformation(st.pos, st.att)).create_mesh(colour,f"{st.time.t[0]:.1f}") for st in seq[::step]]
-
 
 def vector(origin, direction, **kwargs):
     pdata = Point.concatenate([origin, origin+direction])
@@ -49,7 +47,7 @@ def vectors(npoints: int, seq: State, vectors: Point, **kwargs):
     step = int(len(seq.data) / (npoints+1))
     for pos, wind in zip(seq.pos[::step], vectors[::step]):
         pdata = Point.concatenate([pos, pos+wind])
-        trs.append(trace3d(*pdata.data.T, **kwargs))    
+        trs.append(trace3d(*pdata.data.T, text=abs(vectors), **kwargs))    
     return trs
 
 
