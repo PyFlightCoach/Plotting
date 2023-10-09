@@ -185,13 +185,15 @@ def aoa_trace(sec, dash="dash", colours = px.colors.qualitative.Plotly):
 def axestrace(cid: Coord, length:float=20.0):
     ntraces = []
     colours = {"x":"red", "y":"blue", "z":"green"}
-    for ax, col in zip([cid.x_axis, cid.y_axis, cid.z_axis], list("xyz")):
-        axis = Point.concatenate([cid.origin, cid.origin + ax * length])
-        ntraces.append(go.Scatter3d(
-            x=axis.x, y=axis.y, z=axis.z, mode="lines", 
-            line=dict(color=colours[col]),
-            name=col
-        ))
+    for i, ci in enumerate(cid):
+        for ax, col in zip([ci.x_axis, ci.y_axis, ci.z_axis], list("xyz")):
+            axis = Point.concatenate([ci.origin, ci.origin + ax * length])
+            ntraces.append(go.Scatter3d(
+                x=axis.x, y=axis.y, z=axis.z, mode="lines", 
+                line=dict(color=colours[col]),
+                name=col,
+                showlegend=True if i==0 else False
+            ))
         
     return ntraces
 
