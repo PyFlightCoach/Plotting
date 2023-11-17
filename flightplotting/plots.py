@@ -16,10 +16,9 @@ from flightplotting.traces import (
     axestrace
 )
     
-from flightanalysis import State, Manoeuvre
+from flightdata import State
 from geometry import Coord
 from flightplotting.model import obj, OBJ
-from flightanalysis import State
 import numpy as np
 from typing import List, Union
 

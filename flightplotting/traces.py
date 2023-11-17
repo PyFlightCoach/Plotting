@@ -5,7 +5,7 @@ from geometry import Point, Coord, Transformation
 import numpy as np
 from typing import List, Union
 
-from flightanalysis import State
+from flightdata import State
 from flightanalysis.schedule import Manoeuvre, Schedule
 from flightplotting.model import obj, OBJ
 import plotly.express as px
