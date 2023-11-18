@@ -6,7 +6,6 @@ import numpy as np
 from typing import List, Union
 
 from flightdata import State
-from flightanalysis.schedule import Manoeuvre, Schedule
 from flightplotting.model import obj, OBJ
 import plotly.express as px
 
@@ -80,7 +79,7 @@ def cgtrace(seq, **kwargs):
     )
 
 
-def manoeuvretraces(schedule: Schedule, section: State, colours = px.colors.qualitative.Plotly):
+def manoeuvretraces(schedule, section: State, colours = px.colors.qualitative.Plotly):
     traces = []
     for man, color in zip(schedule.manoeuvres, colours):
         st = man.get_data(section)
@@ -89,7 +88,7 @@ def manoeuvretraces(schedule: Schedule, section: State, colours = px.colors.qual
     return traces
 
 
-def elementtraces(manoeuvre: Manoeuvre, sec: State):
+def elementtraces(manoeuvre, sec: State):
     traces = []
     for id, element in enumerate(manoeuvre.elements):
         elm = element.get_data(sec)
