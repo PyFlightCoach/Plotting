@@ -52,19 +52,15 @@ def vectors(npoints: int, seq: State, vectors: Point, **kwargs):
 
 
 def trace3d(datax, datay, dataz, **kwargs):
-    return go.Scatter3d(
-        x=datax,
-        y=datay,
-        z=dataz,
-        **dict(
-            dict(
-                mode='lines',
-                line=dict(color="black", width=2, dash="solid"),
-                showlegend=False
-            ),
-            **kwargs
-        )
-    )
+
+    if not 'mode' in kwargs:
+        kwargs['mode'] = 'lines'
+    if kwargs['mode'] == 'lines' and not 'line' in kwargs:
+        kwargs['line']=dict(width=2, dash="solid")
+    if not 'showlegend' in kwargs:
+        kwargs['showlegend'] = False
+
+    return go.Scatter3d(x=datax,y=datay,z=dataz,**kwargs)
 
 
 def cgtrace(seq, **kwargs):

@@ -42,7 +42,7 @@ def plotsec(secs: Union[State, list[State]], scale=5, nmodels=0, fig=None,
         if nmodels > 0:
             traces += meshes(nmodels, sec, _color, obj.scale(scale))
         if cg:
-            traces += cgtrace(sec, text=text, color=_color)
+            traces.append(cgtrace(sec, line=dict(color=_color, width=2)))
 
     if origin:
         traces += axestrace(Coord.zero(), 50)
