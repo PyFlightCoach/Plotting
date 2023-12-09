@@ -147,6 +147,21 @@ def dtwtrace(sec: State, elms, showlegend = True):
 
 
 
+
+def axis_rate_traces(sts: dict[State], cols='pqr'):
+    cols = px.colors.qualitative.D3
+    traces = []
+    dashes = ['solid', 'dot', 'dash', 'longdash', 'dashdot', 'longdashdot']
+    for i, rv in enumerate(list('pqr')):
+        for k, st in sts.items():
+
+            traces.append(go.Scatter(
+                x=st.data.index, y=getattr(st, rv), name=f'{k} {rv}', line=dict(color=cols[i], dash=dashes[list(sts.keys()).index(k)])
+            ))
+    return traces
+
+
+
 def sec_col_trace(sec, columns, dash="solid", colours = px.colors.qualitative.Plotly, yfunc=lambda x: x):
     trs = []
     for i, axis in enumerate(columns):

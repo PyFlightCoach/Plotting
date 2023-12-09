@@ -2,42 +2,25 @@ import numpy as np
 import plotly.graph_objects as go
 from geometry import Transformation, Quaternion, Point
 from pkg_resources import resource_stream
+from dataclasses import dataclass
+import numpy.typing as npt
 
-class OBJ(object):
-    def __init__(self, vertices: Point, faces: np.ndarray):
-        self.vertices = vertices
-        self.faces = faces
+@dataclass
+class OBJ:
+    vertices: Point
+    faces: npt.NDArray
+    normals: npt.NDArray = None
+
     
     @staticmethod
     def from_obj_data(odata):
-        """[summary]
-        lifted in its entirity from here: https://chart-studio.plotly.com/~empet/15040/plotly-mesh3d-from-a-wavefront-obj-f/#/
-        odata is the string read from an obj file
-        """
-        vertices = []
-        faces = []
         lines = odata.splitlines()
 
-        for line in lines:
-            slist = line.split()
-            if slist:
-                if slist[0] == 'v':
-                    vertex = np.array(slist[1:], dtype=float)
-                    vertices.append(vertex)
-                elif slist[0] == 'f':
-                    face = []
-                    for k in range(1, len(slist)):
-                        face.append([int(s)
-                                    for s in slist[k].replace('//', '/').split('/')])
-                    if len(face) > 3:  # triangulate the n-polyonal face, n>3
-                        faces.extend([[face[0][0]-1, face[k][0]-1, face[k+1][0]-1]
-                                    for k in range(1, len(face)-1)])
-                    else:
-                        faces.append([face[j][0]-1 for j in range(len(face))])
-                else:
-                    pass
+        vertices = np.array([l.split(' ')[1:] for l in lines if l[:2]=='v '] , dtype=float)
+        normals = [l.split(' ')[1:] for l in lines if l[:3]=='vn ']
+        faces = np.array([[fn.split('//')[0] for fn in l.split(' ')[1:]] for l in lines if l[:2]=='f '], dtype=int)-1
 
-        return OBJ(Point(np.array(vertices)), np.array(faces))
+        return OBJ(Point(vertices),faces, normals)
 
     @staticmethod
     def from_obj_file(file):
