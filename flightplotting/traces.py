@@ -148,7 +148,7 @@ def dtwtrace(sec: State, elms, showlegend = True):
 
 
 
-def axis_rate_traces(sts: dict[State], cols='pqr'):
+def axis_rate_traces(sts: dict[str, State], cols='pqr'):
     cols = px.colors.qualitative.D3
     traces = []
     dashes = ['solid', 'dot', 'dash', 'longdash', 'dashdot', 'longdashdot']

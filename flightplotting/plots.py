@@ -72,8 +72,9 @@ def plotsec(secs: Union[State, list[State]], scale=5, nmodels=0, fig=None,
 
 
 
-def plotdtw(sec: State, manoeuvres: List[str], span=3):
-    fig = go.Figure()
+def plotdtw(sec: State, manoeuvres: List[str], span=3, fig=None):
+    if fig is None:
+        fig = go.Figure(layout=go.Layout(template="flight3d+judge_view"))
 
     traces = []#tiptrace(sec, span)
 
@@ -94,10 +95,9 @@ def plotdtw(sec: State, manoeuvres: List[str], span=3):
         except Exception as ex:
             pass
             print("no data for manoeuvre {}, {}".format(name, ex))
-    fig = go.Figure(
-        data=traces,
-        layout=go.Layout(template="flight3d+judge_view"),
-    )
+    
+    fig.add_traces(traces)
+    
 
     return fig
 
