@@ -1,10 +1,8 @@
 import plotly.graph_objects as go
 import flightplotting.templates
-from .model import OBJ
 from geometry import Point, Coord, Transformation
 import numpy as np
-from typing import List, Union
-
+from plotly.colors import DEFAULT_PLOTLY_COLORS
 from flightdata import State
 from flightplotting.model import obj, OBJ
 import plotly.express as px
@@ -53,11 +51,11 @@ def vectors(npoints: int, seq: State, vectors: Point, **kwargs):
 
 def trace3d(datax, datay, dataz, **kwargs):
 
-    if not 'mode' in kwargs:
+    if 'mode' not in kwargs:
         kwargs['mode'] = 'lines'
-    if kwargs['mode'] == 'lines' and not 'line' in kwargs:
+    if kwargs['mode'] == 'lines' and 'line' not in kwargs:
         kwargs['line']=dict(width=2, dash="solid")
-    if not 'showlegend' in kwargs:
+    if 'showlegend' not in kwargs:
         kwargs['showlegend'] = False
 
     return go.Scatter3d(x=datax,y=datay,z=dataz,**kwargs)
@@ -103,8 +101,7 @@ def elementtraces(manoeuvre, sec: State):
 
 
 def tiptrace(seq, span, **kwargs):
-    text = ["{:.1f}".format(val) for val in seq.data.index]
-
+    
     def make_offset_trace(pos, colour):
         tr =  trace3d(
             *seq.body_to_world(pos).data.T,
@@ -119,8 +116,13 @@ def tiptrace(seq, span, **kwargs):
     ]
 
 
-get_colour = lambda i : DEFAULT_PLOTLY_COLORS[i % len(DEFAULT_PLOTLY_COLORS)]  
-from plotly.colors import DEFAULT_PLOTLY_COLORS
+def get_colour(i):
+    return DEFAULT_PLOTLY_COLORS[i % len(DEFAULT_PLOTLY_COLORS)]  
+
+
+def colour_from_scale(v, vmax, scale=px.colors.sequential.Burg):
+    return scale[int((len(scale) - 1) * v / vmax)]
+
 
 def dtwtrace(sec: State, elms, showlegend = True):
     traces = tiptrace(sec, 10)

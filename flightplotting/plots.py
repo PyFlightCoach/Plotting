@@ -8,8 +8,6 @@ from flightplotting.traces import (
     control_input_trace, 
     axis_rate_trace, 
     aoa_trace, 
-    dtwtrace,
-    control_inputs,
     cgtrace,
     ribbon,
     vectors,
@@ -34,7 +32,7 @@ def plotsec(secs: Union[State, list[State]], scale=5, nmodels=0, fig=None,
 
     for i, sec in enumerate(secs):
         text = ["{:.1f}".format(val) for val in sec.data.index]
-        _color = color if not color is None else px.colors.qualitative.Plotly[i]
+        _color = color if color is not None else px.colors.qualitative.Plotly[i]
         if ribb:
             traces += ribbon(sec, scale * 1.85, _color)
         if tips:
@@ -62,9 +60,9 @@ def plotsec(secs: Union[State, list[State]], scale=5, nmodels=0, fig=None,
                 zaxis=dict(visible=True, showticklabels=True)
             )
             )
-        if not width is None:
+        if width is not None:
             fig.update_layout(width=width)
-        if not height is None:
+        if height is not None:
             fig.update_layout(height=height)
     else:
         fig.add_traces(traces)
@@ -101,7 +99,29 @@ def plotdtw(sec: State, manoeuvres: List[str], span=3, fig=None):
 
     return fig
 
+def plot_regions(st: State, lab_cols: list[str], span=3, colours=None, fig=None):
+    if isinstance(lab_cols, str):
+        lab_cols = [lab_cols]
+    traces = []
+    if colours is None:
+        colours = px.colors.qualitative.Plotly
+    for i, (k, seg) in enumerate(st.split_labels(lab_cols).items()):
+        colour = colours[i % len(colours)]
+        traces += ribbon(seg, span, colour, k)
 
+        traces.append(go.Scatter3d(
+            x=seg.pos.x, 
+            y=seg.pos.y, 
+            z=seg.pos.z,
+            mode='lines', 
+            line=dict(width=6, color=colour), 
+            name=k
+        ))
+    
+    if fig is None:
+        fig = go.Figure(layout=go.Layout(template="flight3d+judge_view"))
+    fig.add_traces(traces)
+    return fig
 
 def create_3d_plot(traces):
     return go.Figure(
@@ -221,23 +241,3 @@ axis = dict(
     showline=True
 )
 
-
-aiaa_layout = dict(
-    margin=dict(l=1, r=1, t=5, b=1), 
-    legend=dict(yanchor="top", xanchor="left", x=0.8, y=0.99),
-    font_family="Times New Roman",
-    font_size=18,plot_bgcolor='rgba(0,0,0,0)',
- #   xaxis=dict(**axis),
- #   yaxis=dict(range=(-100,700), **axis),
- #   yaxis2=dict(range=(-100/20,700/20), **axis),
-)
-
-aiaa_full_width = dict(width=1200,**aiaa_layout)
-aiaa_half_width = dict(width=600,**aiaa_layout)
-
-aiaa_axis_rates = dict(
-    xaxis=dict(range=(0,1.1), **axis),
-    yaxis=dict(range=(-100,700), **axis),
-    yaxis2=dict(range=(-100/20,700/20), **axis),
-    **aiaa_half_width
-)
