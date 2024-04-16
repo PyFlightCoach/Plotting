@@ -100,22 +100,41 @@ def plotdtw(sec: State, manoeuvres: List[str], span=3, fig=None):
     return fig
 
 def plot_regions(st: State, lab_cols: list[str], span=3, colours=None, fig=None):
-    if isinstance(lab_cols, str):
-        lab_cols = [lab_cols]
+    colours = px.colors.qualitative.Plotly if colours is None else colours
+    lab_cols = [lab_cols] if isinstance(lab_cols, str) else lab_cols
+
+    st = st.label(clabs=st.cumulative_labels(*lab_cols))
+    
+    def get_base_label(clab):
+        base = clab
+        try:
+            id = int(clab.split('_')[-1])
+            base = clab[:-len(f'_{id}')]
+        except Exception:
+            pass
+        return base
+    
+    colmap = {}
+
     traces = []
-    if colours is None:
-        colours = px.colors.qualitative.Plotly
-    for i, (k, seg) in enumerate(st.split_labels(lab_cols).items()):
-        colour = colours[i % len(colours)]
-        traces += ribbon(seg, span, colour, k)
+    for i, (k, seg) in enumerate(st.split_labels('clabs').items()):
+        blab = get_base_label(k)
+        if blab not in colmap:
+            colmap[blab] = colours[len(colmap) % len(colours)]
+            leg = True
+        else:
+            leg = False
+
+        traces += ribbon(seg, span, colmap[blab], name=k, showlegend=leg)
 
         traces.append(go.Scatter3d(
             x=seg.pos.x, 
             y=seg.pos.y, 
             z=seg.pos.z,
             mode='lines', 
-            line=dict(width=6, color=colour), 
-            name=k
+            line=dict(width=6, color=colmap[blab]), 
+            name=k,
+            showlegend=False
         ))
     
     if fig is None:
