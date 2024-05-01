@@ -254,7 +254,6 @@ def ribbon(sec: State, span: float, color, **kwargs):
     _ks = np.array(range(2, len(points) -1 , 2))
     _k = _npinterzip(_ks, _ks) # 2 2 4 4 6 6 
 
-
     return [go.Mesh3d(
         x=points.x, y=points.y, z=points.z, i=_i, j=_j, k=_k,
         intensitymode="cell",

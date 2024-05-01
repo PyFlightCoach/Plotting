@@ -15,6 +15,7 @@ from flightplotting.traces import (
 )
     
 from flightdata import State
+from flightdata.base.labeling import get_appended_id
 from geometry import Coord
 from flightplotting.model import obj, OBJ
 import numpy as np
@@ -99,9 +100,10 @@ def plotdtw(sec: State, manoeuvres: List[str], span=3, fig=None):
 
     return fig
 
-def plot_regions(st: State, lab_cols: list[str], span=3, colours=None, fig=None):
+def plot_regions(st: State, lab_cols: list[str], span=3, colours=None, fig=None, **kwargs):
     colours = px.colors.qualitative.Plotly if colours is None else colours
     lab_cols = [lab_cols] if isinstance(lab_cols, str) else lab_cols
+
 
     st = st.label(clabs=st.cumulative_labels(*lab_cols))
     
@@ -118,21 +120,22 @@ def plot_regions(st: State, lab_cols: list[str], span=3, colours=None, fig=None)
 
     traces = []
     for i, (k, seg) in enumerate(st.split_labels('clabs').items()):
-        blab = get_base_label(k)
+        if len(seg) < 3:
+            continue
+        blab, id = get_appended_id(k)
         if blab not in colmap:
             colmap[blab] = colours[len(colmap) % len(colours)]
-            leg = True
-        else:
-            leg = False
-
-        traces += ribbon(seg, span, colmap[blab], name=k, showlegend=leg)
-
+        traces += ribbon(
+            seg, span, colmap[blab], name=blab,
+            showlegend=int(id)==0,
+            **kwargs[blab] if blab in kwargs else {}
+        )
         traces.append(go.Scatter3d(
             x=seg.pos.x, 
             y=seg.pos.y, 
             z=seg.pos.z,
             mode='lines', 
-            line=dict(width=6, color=colmap[blab]), 
+            line=dict(width=0, color=colmap[blab]), 
             name=k,
             showlegend=False
         ))
