@@ -17,34 +17,54 @@ from flightplotting.traces import (
 from flightdata import State
 from flightdata.base.labeling import get_appended_id
 from geometry import Coord
-from flightplotting.model import obj, OBJ
+from flightplotting.model import obj
 import numpy as np
 from typing import List, Union
 
 
-def plotsec(secs: Union[State, list[State]], scale=5, nmodels=0, fig=None, 
-            color: Union[str, list[str]]=None, obj: OBJ=obj, cg=False, width=None, 
+def plotsec(secs: State | list[State] | dict[str, State], scale=5, nmodels=0, fig=None, 
+            color: Union[str, list[str]]=None, cg=False, width=None, 
             height=None, show_axes=False, ribb: bool=False, tips: bool=True, origin=False):
 
     traces = []
-
+    keys = None
     if isinstance(secs, State):
         secs = [secs]
+
+    if isinstance(secs, dict):
+        keys = list(secs.keys())
+        secs = list(secs.values())
+        showkeys=True
+    else:
+        keys = list(range(len(secs)))
+        showkeys=False
 
     for i, sec in enumerate(secs):
         text = ["{:.1f}".format(val) for val in sec.data.index]
         _color = color if color is not None else px.colors.qualitative.Plotly[i]
         if ribb:
-            traces += ribbon(sec, scale * 1.85, _color)
+            traces += ribbon(sec, scale * 1.85, _color, name=keys[i])
         if tips:
-            traces += tiptrace(sec, scale * 1.85, text=text)
+            traces += tiptrace(sec, scale * 1.85, text=text, name=keys[i])
         if nmodels > 0:
-            traces += meshes(nmodels, sec, _color, obj.scale(scale))
+            traces += meshes(nmodels, sec, _color, scale)
         if cg:
-            traces.append(cgtrace(sec, line=dict(color=_color, width=2)))
+            traces.append(cgtrace(sec, line=dict(color=_color, width=2), name=keys[i]))
 
     if origin:
         traces += axestrace(Coord.zero(), 50)
+
+    if showkeys:
+        for i, key in enumerate(keys):
+            traces.append(go.Scatter3d(
+                x=[],
+                y=[],
+                z=[],
+                mode='markers',
+                marker=dict(size=5, color=px.colors.qualitative.Plotly[i]),
+                name=key,
+                showlegend=True
+            ))
 
     if fig is None:
 

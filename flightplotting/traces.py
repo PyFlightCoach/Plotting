@@ -24,14 +24,18 @@ def boxtrace():
     )]
 
 
-def meshes(npoints, seq: State, colour, obj: OBJ=obj):
+def meshes(npoints, seq: State, colour, scale=1, _obj: OBJ=None):
+    _obj = obj if _obj is None else _obj
+    if scale != 1:
+        _obj = _obj.scale(scale)
     step = int(len(seq.data) / max(npoints, 1))
     
     ms = []
 
-    sts = [seq[0]] + [ st for st in seq[::step]] + [seq[-1]]
-    for st in sts:
-        ms.append(obj.transform(Transformation(st.pos, st.att)).create_mesh(colour,f"{st.time.t[0]:.1f}"))
+    for st in seq[::step]:
+        ms.append(_obj.transform(
+            Transformation(st.pos, st.att)
+        ).create_mesh(colour,f"{st.time.t[0]:.1f}"))
     return ms
 
 def vector(origin, direction, **kwargs):
