@@ -126,16 +126,7 @@ def plot_regions(st: State, lab_cols: list[str], span=3, colours=None, fig=None,
 
 
     st = st.label(clabs=st.cumulative_labels(*lab_cols))
-    
-    def get_base_label(clab):
-        base = clab
-        try:
-            id = int(clab.split('_')[-1])
-            base = clab[:-len(f'_{id}')]
-        except Exception:
-            pass
-        return base
-    
+        
     colmap = {}
 
     traces = []

@@ -28,14 +28,19 @@ def meshes(npoints, seq: State, colour, scale=1, _obj: OBJ=None):
     _obj = obj if _obj is None else _obj
     if scale != 1:
         _obj = _obj.scale(scale)
-    step = int(len(seq.data) / max(npoints, 1))
-    
+    locs = []
+    if npoints >= 1:
+        locs.append(0)
+    if npoints >= 2:
+        locs.append(-1)
+    if npoints >= 3:
+        locs = locs + list(np.cumsum(np.full(npoints-2, len(seq) / (npoints-1))).astype(int))
+        
     ms = []
-
-    for st in seq[::step]:
+    for loc in locs:
         ms.append(_obj.transform(
-            Transformation(st.pos, st.att)
-        ).create_mesh(colour,f"{st.time.t[0]:.1f}"))
+            Transformation(seq.pos[loc], seq.att[loc])
+        ).create_mesh(colour,f"{seq.time.t[loc]:.1f}"))
     return ms
 
 def vector(origin, direction, **kwargs):
