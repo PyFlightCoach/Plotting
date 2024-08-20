@@ -8,7 +8,6 @@ from flightplotting.model import obj, OBJ
 import plotly.express as px
 
 
-
 def boxtrace():
     xlim=170*np.tan(np.radians(60))
     ylim=170
@@ -73,12 +72,7 @@ def trace3d(datax, datay, dataz, **kwargs):
 def cgtrace(seq, **kwargs):
     return trace3d(
         *seq.pos.data.T,
-        **dict(
-            dict(
-                text=["{:.1f}".format(val) for val in seq.data.index]
-            ),
-            **kwargs
-        )
+        **kwargs
     )
 
 
