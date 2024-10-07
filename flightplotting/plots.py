@@ -52,7 +52,7 @@ def plotsec(
         showkeys = False
 
     for i, sec in enumerate(secs):
-        text = sec.data.t - sec.data.t.iloc[0]
+        text = sec.data.t #- sec.data.t.iloc[0]
         _color = color if color is not None else px.colors.qualitative.Plotly[i]
         if ribb:
             traces += ribbon(sec, scale * 1.85, _color, name=keys[i])
