@@ -69,6 +69,9 @@ def trace3d(datax, datay, dataz, **kwargs):
     return go.Scatter3d(x=datax,y=datay,z=dataz,**kwargs)
 
 
+def pointtrace(p: Point, **kwargs):
+    return trace3d(p.x, p.y, p.z, **kwargs)
+
 def cgtrace(seq, **kwargs):
     return trace3d(
         *seq.pos.data.T,
