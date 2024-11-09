@@ -1,21 +1,31 @@
-[build-system]
-requires = [
-    "setuptools>=60",
-    "setuptools-scm>=8.0"
-]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "flightplotting"
-authors = [{name = "Thomas David", email = "thomasdavid0@gmail.com"}]
-description = "Tools for Plotting Flight Data in Plotly"
+description = "Add your description here"
 readme = "README.md"
+authors = [{ name = "Thomas David", email = "thomasdavid0@gmail.com" }]
 requires-python = ">=3.12"
-license = {text = "GNU GPL v3"}
-classifiers = ["Programming Language :: Python :: 3",]
-dynamic = ["version", "dependencies"]
+dependencies = [
+    "flightanalysis",
+    "flightdata",
+    "numpy>=2.1.3",
+    "pandas>=2.2.3",
+    "pfc-geometry",
+    "plotly>=5.24.1",
+]
+dynamic = ["version"]
 
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
-[tool.setuptools_scm]
+[tool.hatch.version]
+source = "vcs"
+
+[tool.uv.sources]
+pfc-geometry = { workspace = true }
+flightdata = { workspace = true }
+flightanalysis = { workspace = true }
+ardupilot-log-reader = { workspace = true }
+
+[dependency-groups]
+dev = ["ardupilot-log-reader", "pymavlink>=2.4.42", "pytest>=8.3.3"]
