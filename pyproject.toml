@@ -25,7 +25,7 @@ source = "vcs"
 pfc-geometry = { workspace = true }
 flightdata = { workspace = true }
 flightanalysis = { workspace = true }
-ardupilot-log-reader = { workspace = true }
+ardupilot_log_reader = { workspace = true }
 
 [dependency-groups]
-dev = ["ardupilot-log-reader", "pymavlink>=2.4.42", "pytest>=8.3.3"]
+dev = ["ardupilot_log_reader", "pymavlink>=2.4.42", "pytest>=8.3.3"]
