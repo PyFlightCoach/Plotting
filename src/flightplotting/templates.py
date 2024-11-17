@@ -27,3 +27,23 @@ judges_view_template = go.layout.Template(layout=go.Layout(scene_camera=dict(
 
 
 pio.templates["judge_view"] = judges_view_template
+
+
+clean_paper_template = go.layout.Template(layout=go.Layout(
+    margin=dict(l=0, r=0, t=0, b=0),
+    scene=dict(
+        aspectmode='data',
+        xaxis = dict(visible=False),
+        yaxis = dict(visible=False),
+        zaxis =dict(visible=False)
+    ),
+    legend=dict(
+        font=dict(size=20),
+        yanchor="top",
+        y=0.99,
+        xanchor="left",
+        x=0.01
+    )
+))
+
+pio.templates["clean_paper"] = judges_view_template

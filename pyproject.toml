@@ -22,10 +22,10 @@ build-backend = "hatchling.build"
 source = "vcs"
 
 [tool.uv.sources]
-pfc-geometry = { workspace = true }
-flightdata = { workspace = true }
-flightanalysis = { workspace = true }
-ardupilot_log_reader = { workspace = true }
+pfc-geometry = { path = "../geometry" , editable = true}
+flightdata = { path = "../FlightData" , editable = true}
+flightanalysis = {  path = "../FlightAnalysis" , editable = true}
+ardupilot_log_reader = { path = "../ArdupilotLogReader" , editable = true}
 
 [dependency-groups]
 dev = ["ardupilot_log_reader", "pymavlink>=2.4.42", "pytest>=8.3.3"]

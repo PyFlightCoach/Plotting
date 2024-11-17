@@ -22,6 +22,7 @@ import numpy.typing as npt
 import numpy as np
 import pandas as pd
 from typing import List, Union
+from flightanalysis.scoring.box import Box
 
 
 def plotsec(
@@ -135,7 +136,7 @@ def plotdtw(sec: State, manoeuvres: List[str], span=3, fig=None):
 
 
 def plot_regions(
-    st: State, lab_cols: list[str], span=3, colours=None, fig=None, **kwargs
+    st: State, lab_cols: list[str], span=3, colours=None, fig=None, box:Box=None, **kwargs
 ):
     colours = px.colors.qualitative.Plotly if colours is None else colours
     lab_cols = [lab_cols] if isinstance(lab_cols, str) else lab_cols
@@ -174,6 +175,8 @@ def plot_regions(
     if fig is None:
         fig = go.Figure(layout=go.Layout(template="flight3d+judge_view"))
     fig.add_traces(traces)
+    if box:
+        fig.add_traces(box.plot())
     return fig
 
 
