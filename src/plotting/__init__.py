@@ -1,11 +1,11 @@
-from flightplotting.plots import (
+from plotting.plots import (
     plotsec,
     plot_analysis,
     plotdtw,
     create_3d_plot,
     plot_regions,
 )
-from flightplotting.traces import (
+from plotting.traces import (
     axestrace,
     trace3d,
     dtwtrace,

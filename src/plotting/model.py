@@ -80,7 +80,7 @@ class OBJ:
 
 
 _obj_string = (
-    files("flightplotting.data").joinpath("ColdDraftF3APlane.obj").open("r").read()
+    files("plotting.data").joinpath("ColdDraftF3APlane.obj").open("r").read()
 )
 
 obj = OBJ.from_obj_data(_obj_string).transform(

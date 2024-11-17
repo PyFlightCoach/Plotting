@@ -1,8 +1,8 @@
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import plotly.express as px
-import flightplotting.templates
-from flightplotting.traces import (
+import plotting.templates
+from plotting.traces import (
     tiptrace,
     meshes,
     control_input_trace,
@@ -17,7 +17,7 @@ from flightplotting.traces import (
 from flightdata import State
 from flightdata.base.labeling import get_appended_id
 from geometry import Coord
-from flightplotting.model import obj
+from plotting.model import obj
 import numpy.typing as npt
 import numpy as np
 import pandas as pd

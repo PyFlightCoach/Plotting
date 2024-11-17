@@ -1,7 +1,7 @@
 from flightdata import Flight, State
 from pytest import fixture
-from flightplotting import plotsec
-from flightplotting.traces import cgtrace
+from plotting import plotsec
+from plotting.traces import cgtrace
 import plotly.graph_objects as go
 
 @fixture
