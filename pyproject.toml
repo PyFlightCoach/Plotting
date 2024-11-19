@@ -1,5 +1,6 @@
 [project]
 name = "flightplotting"
+version="v0.2.11"
 description = "Add your description here"
 readme = "README.md"
 authors = [{ name = "Thomas David", email = "thomasdavid0@gmail.com" }]
@@ -12,14 +13,10 @@ dependencies = [
     "pfc-geometry",
     "plotly>=5.24.1",
 ]
-dynamic = ["version"]
 
 [build-system]
-requires = ["hatchling", "hatch-vcs"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-[tool.hatch.version]
-source = "vcs"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/plotting"]
