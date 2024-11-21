@@ -1,10 +1,10 @@
 import plotly.graph_objects as go
-import flightplotting.templates
+import plotting.templates
 from geometry import Point, Coord, Transformation
 import numpy as np
 from plotly.colors import DEFAULT_PLOTLY_COLORS
 from flightdata import State
-from flightplotting.model import obj, OBJ
+from plotting.model import obj, OBJ
 import plotly.express as px
 
 

@@ -1,6 +1,0 @@
-numpy
-pandas
-plotly
-pfc-geometry>=0.2.8
-flightdata>=0.2.16
-flightanalysis>=0.2.17

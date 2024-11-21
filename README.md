@@ -1,11 +1,11 @@
-# FlightPlotting
+# plotting
 
 
 This module contains utilities for plotting flight data using plotly
 
 
 ```bash
-pip install flightplotting
+pip install plotting
 ```
 
 ```bash

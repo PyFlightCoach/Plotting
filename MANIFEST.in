@@ -1,1 +1,1 @@
-include flightplotting/data/*.obj
+include plotting/data/*.obj
