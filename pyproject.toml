@@ -6,8 +6,8 @@ readme = "README.md"
 authors = [{ name = "Thomas David", email = "thomasdavid0@gmail.com" }]
 requires-python = ">=3.12"
 dependencies = [
-    "flightanalysis",
-    "flightdata",
+    "flightanalysis>=0.3.13",
+    "flightdata>=0.2.24",
     "numpy>=2.1.3",
     "pandas>=2.2.3",
     "pfc-geometry",
@@ -28,4 +28,4 @@ flightanalysis = {  path = "../FlightAnalysis" , editable = true}
 ardupilot_log_reader = { path = "../ArdupilotLogReader" , editable = true}
 
 [dependency-groups]
-dev = ["ardupilot_log_reader", "pymavlink>=2.4.42", "pytest>=8.3.3"]
+dev = ["ardupilot_log_reader>=0.3.5", "pymavlink>=2.4.42", "pytest>=8.3.3"]
