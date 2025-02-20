@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [{ name = "Thomas David", email = "thomasdavid0@gmail.com" }]
 requires-python = ">=3.12"
 dependencies = [
-    "flightanalysis>=0.3.14",
+    "flightanalysis",
     "numpy>=2.1.3",
     "pandas>=2.2.3",
     "plotly>=5.24.1",
