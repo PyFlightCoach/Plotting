@@ -1,3 +1,4 @@
+from typing import Literal
 import plotly.graph_objects as go
 import plotting.templates
 from geometry import Point, Coord, Transformation
@@ -243,7 +244,7 @@ def _npinterzip(a, b):
     return c
 
 
-def ribbon(sec: State, span: float, color, **kwargs):
+def ribbon(sec: State, span: float, color, hover: Literal["i", "t"]='i', **kwargs):
     """TODO make the colouring more generic
     """
 
@@ -252,7 +253,13 @@ def ribbon(sec: State, span: float, color, **kwargs):
 
     points = Point(_npinterzip(left.data, right.data))
 
-    
+    match hover:
+        case "i":
+            text=[f"{i}" for i in np.arange(len(sec)*2)]
+        case _:
+            text=[f"{t:.1f}" for t in _npinterzip(sec.t, sec.t)]
+        
+
     _i = np.array(range(len(points) - 2))   # 1 2 3 4 5
 
     _js = np.array(range(1, len(points), 2))
@@ -265,5 +272,7 @@ def ribbon(sec: State, span: float, color, **kwargs):
         x=points.x, y=points.y, z=points.z, i=_i, j=_j, k=_k,
         intensitymode="cell",
         facecolor=np.full(len(_i), color),
+        text=text,
+        hovertemplate='i:%{text}<br>',
         **kwargs
     )]
