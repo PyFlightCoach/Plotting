@@ -25,7 +25,7 @@ def boxtrace():
     )]
 
 
-def meshes(npoints, seq: State | Transformation, colour, scale=1, _obj: OBJ=None):
+def meshes(npoints, seq: State | Transformation, colour: str=None, scale=1, _obj: OBJ=None):
     _obj = obj if _obj is None else _obj
     if scale != 1:
         _obj = _obj.scale(scale)
@@ -41,7 +41,7 @@ def meshes(npoints, seq: State | Transformation, colour, scale=1, _obj: OBJ=None
     for i, loc in enumerate(locs):
         ms.append(_obj.transform(
             seq.iloc[loc].transform if isinstance(seq, State) else seq[loc]
-        ).create_mesh(colour,f"{(seq.time.t[loc] if isinstance(seq, State) else i):.1f}"))
+        ).create_mesh(colour or "grey",f"{(seq.time.t[loc] if isinstance(seq, State) else i):.1f}"))
     return ms
 
 def vector(origin, direction, **kwargs):
