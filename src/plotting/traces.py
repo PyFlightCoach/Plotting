@@ -1,4 +1,3 @@
-import enum
 from typing import Literal
 import plotly.graph_objects as go
 import plotting.templates

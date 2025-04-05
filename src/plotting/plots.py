@@ -15,14 +15,12 @@ from plotting.traces import (
 )
 
 from flightdata import State
-from flightdata.base.labeling import get_appended_id
 from geometry import Coord
 from plotting.model import obj
 import numpy.typing as npt
 import numpy as np
 import pandas as pd
 from typing import List, Union
-from flightanalysis.scoring.box import Box
 
 
 def plotsec(
@@ -144,7 +142,6 @@ def plot_regions(
     span=3,
     colours=None,
     fig=None,
-    box: Box = None,
     ribbonhover="t",
     **kwargs,
 ):
@@ -167,8 +164,6 @@ def plot_regions(
     if fig is None:
         fig = go.Figure(layout=go.Layout(template="flight3d+judge_view"))
     fig.add_traces(traces)
-    if box:
-        fig.add_traces(box.plot())
     return fig
 
 
