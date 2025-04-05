@@ -1,3 +1,4 @@
+from typing import Literal
 import plotly.graph_objects as go
 import plotting.templates
 from geometry import Point, Coord, Transformation
@@ -23,7 +24,7 @@ def boxtrace():
     )]
 
 
-def meshes(npoints, seq: State, colour, scale=1, _obj: OBJ=None):
+def meshes(npoints, seq: State | Transformation, colour: str=None, scale=1, _obj: OBJ=None):
     _obj = obj if _obj is None else _obj
     if scale != 1:
         _obj = _obj.scale(scale)
@@ -36,10 +37,10 @@ def meshes(npoints, seq: State, colour, scale=1, _obj: OBJ=None):
         locs = locs + list(np.cumsum(np.full(npoints-2, len(seq) / (npoints-1))).astype(int))
         
     ms = []
-    for loc in locs:
+    for i, loc in enumerate(locs):
         ms.append(_obj.transform(
-            Transformation(seq.pos[loc], seq.att[loc])
-        ).create_mesh(colour,f"{seq.time.t[loc]:.1f}"))
+            seq.iloc[loc].transform if isinstance(seq, State) else seq[loc]
+        ).create_mesh(colour or "grey",f"{(seq.time.t[loc] if isinstance(seq, State) else i):.1f}"))
     return ms
 
 def vector(origin, direction, **kwargs):
@@ -201,21 +202,22 @@ def aoa_trace(sec, dash="dash", colours = px.colors.qualitative.Plotly):
     #sec = sec.append_columns(sec.aoa())
     return sec_col_trace(sec, ["alpha", "beta"], dash, colours, np.degrees)
 
-def axestrace(cid: Coord, length:float=20.0):
+def axestrace(cid: Coord | Transformation, length:float=20.0, **kwargs):
     ntraces = []
     colours = {"x":"red", "y":"blue", "z":"green"}
     for i, ci in enumerate(cid):
+        if isinstance(ci, Transformation):
+            ci = ci.apply(Coord.zero())
         for ax, col in zip([ci.x_axis, ci.y_axis, ci.z_axis], list("xyz")):
             axis = Point.concatenate([ci.origin, ci.origin + ax * length])
             ntraces.append(go.Scatter3d(
                 x=axis.x, y=axis.y, z=axis.z, mode="lines", 
                 line=dict(color=colours[col]),
-                name=col,
-                showlegend=True if i==0 else False
+                name=f"{i}_{col}",
+                **kwargs
             ))
         
     return ntraces
-
 
 
 
@@ -243,7 +245,7 @@ def _npinterzip(a, b):
     return c
 
 
-def ribbon(sec: State, span: float, color, **kwargs):
+def ribbon(sec: State, span: float, color, hover: Literal["i", "t"]='i', **kwargs):
     """TODO make the colouring more generic
     """
 
@@ -252,7 +254,13 @@ def ribbon(sec: State, span: float, color, **kwargs):
 
     points = Point(_npinterzip(left.data, right.data))
 
-    
+    match hover:
+        case "i":
+            text=[f"{i}" for i in np.arange(len(sec)*2)]
+        case _:
+            text=[f"{t:.1f}" for t in _npinterzip(sec.t, sec.t)]
+        
+
     _i = np.array(range(len(points) - 2))   # 1 2 3 4 5
 
     _js = np.array(range(1, len(points), 2))
@@ -265,5 +273,7 @@ def ribbon(sec: State, span: float, color, **kwargs):
         x=points.x, y=points.y, z=points.z, i=_i, j=_j, k=_k,
         intensitymode="cell",
         facecolor=np.full(len(_i), color),
+        text=text,
+        hovertemplate='i:%{text}<br>',
         **kwargs
     )]

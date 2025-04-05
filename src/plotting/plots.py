@@ -15,14 +15,12 @@ from plotting.traces import (
 )
 
 from flightdata import State
-from flightdata.base.labeling import get_appended_id
 from geometry import Coord
 from plotting.model import obj
 import numpy.typing as npt
 import numpy as np
 import pandas as pd
 from typing import List, Union
-from flightanalysis.scoring.box import Box
 
 
 def plotsec(
@@ -37,6 +35,7 @@ def plotsec(
     show_axes=False,
     ribb: bool = False,
     tips: bool = True,
+    ribbonhover="t",    
     origin=False,
 ):
     traces = []
@@ -53,16 +52,18 @@ def plotsec(
         showkeys = False
 
     for i, sec in enumerate(secs):
-        text = sec.data.t #- sec.data.t.iloc[0]
+        text = sec.data.t  # - sec.data.t.iloc[0]
         _color = color if color is not None else px.colors.qualitative.Plotly[i]
         if ribb:
-            traces += ribbon(sec, scale * 1.85, _color, name=keys[i])
+            traces += ribbon(sec, 0.5 * scale * 1.85, "grey", name=keys[i], opacity=0.5, hover=ribbonhover)
         if tips:
             traces += tiptrace(sec, scale * 1.85, text=text, name=keys[i])
         if nmodels > 0:
             traces += meshes(nmodels, sec, _color, scale)
         if cg:
-            traces.append(cgtrace(sec, line=dict(color=_color, width=2), name=keys[i], text=text))
+            traces.append(
+                cgtrace(sec, line=dict(color=_color, width=2), name=keys[i], text=text)
+            )
 
     if origin:
         traces += axestrace(Coord.zero(), 50)
@@ -136,47 +137,33 @@ def plotdtw(sec: State, manoeuvres: List[str], span=3, fig=None):
 
 
 def plot_regions(
-    st: State, lab_cols: list[str], span=3, colours=None, fig=None, box:Box=None, **kwargs
+    st: State,
+    label_group_name: str,
+    span=3,
+    colours=None,
+    fig=None,
+    ribbonhover="t",
+    **kwargs,
 ):
     colours = px.colors.qualitative.Plotly if colours is None else colours
-    lab_cols = [lab_cols] if isinstance(lab_cols, str) else lab_cols
-
-    st = st.label(clabs=st.cumulative_labels(*lab_cols))
-
-    colmap = {}
 
     traces = []
-    for i, (k, seg) in enumerate(st.split_labels("clabs").items()):
+    for i, k in enumerate(st.labels[label_group_name].keys()):
+        seg = getattr(st, label_group_name)[k]
         if len(seg) < 3:
             continue
-        blab, id = get_appended_id(k)
-        if blab not in colmap:
-            colmap[blab] = colours[len(colmap) % len(colours)]
         traces += ribbon(
             seg,
             span,
-            colmap[blab],
-            name=blab,
-            showlegend=int(id) == 0,
-            **kwargs[blab] if blab in kwargs else {},
+            colours[i%len(colours)],
+            name=k,
+            hover=ribbonhover
         )
-        traces.append(
-            go.Scatter3d(
-                x=seg.pos.x,
-                y=seg.pos.y,
-                z=seg.pos.z,
-                mode="lines",
-                line=dict(width=0, color=colmap[blab]),
-                name=k,
-                showlegend=False,
-            )
-        )
+
 
     if fig is None:
         fig = go.Figure(layout=go.Layout(template="flight3d+judge_view"))
     fig.add_traces(traces)
-    if box:
-        fig.add_traces(box.plot())
     return fig
 
 
@@ -316,7 +303,7 @@ def multi_y_subplots(data: dict[str, pd.DataFrame], x: npt.NDArray = None):
         cols=1,
         shared_xaxes=True,
         vertical_spacing=0.01,
-        #subplot_titles=list(data.keys()),
+        # subplot_titles=list(data.keys()),
     )
 
     for row, (k, v) in enumerate(data.items(), 1):
@@ -352,7 +339,7 @@ def multi_y_subplots(data: dict[str, pd.DataFrame], x: npt.NDArray = None):
                     yanchor="top",
                 ),
                 f"yaxis{i}": dict(
-                    title=list(data.keys())[i-1],
+                    title=list(data.keys())[i - 1],
                     showline=True,
                 ),
             }
