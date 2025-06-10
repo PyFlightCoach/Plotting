@@ -85,7 +85,7 @@ def plotsec(
     if fig is None:
         fig = go.Figure(
             data=traces,
-            layout=go.Layout(template="flight3d+judge_view", uirevision="foo"),
+            layout=go.Layout(template="flight3d", uirevision="foo"),
         )
         if show_axes:
             fig.update_layout(
