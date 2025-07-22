@@ -419,7 +419,7 @@ def get_points(fig: go.Figure) -> g.Point:
 
 def plot_3view(st: State | list[State] | dict[str, State], plotfun: Callable, gap: float, legend_vstep=10):
     
-    allsts = State.stack(st) if not isinstance(st, State) else st
+    allsts = State.stack(st, "grp") if not isinstance(st, State) else st
 
     width = allsts.pos.max() - allsts.pos.min()
     center = allsts.pos.min() + width / 2
