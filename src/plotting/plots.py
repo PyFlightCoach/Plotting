@@ -42,6 +42,8 @@ def plotsec(
     tips: bool = True,
     ribbonhover="t",    
     origin=False,
+    line=None,
+    modelscale=1,
 ):
     traces = []
     keys = None
@@ -70,12 +72,12 @@ def plotsec(
         if ribb:
             traces += ribbon(sec, 0.5 * scale * 1.85, _get_colour(i), name=keys[i], opacity=0.5, hover=ribbonhover)
         if tips:
-            traces += tiptrace(sec, scale * 1.85, text=text, name=keys[i])
+            traces += tiptrace(sec, scale * 1.85, text=text, name=keys[i], line=({} if line is None else line))
         if nmodels > 0:
-            traces += meshes(nmodels, sec, _get_colour(i), scale)
+            traces += meshes(nmodels, sec, _get_colour(i), scale * modelscale)
         if cg:
             traces.append(
-                cgtrace(sec, line=dict(color=_get_colour(i), width=2), name=keys[i], text=text)
+                cgtrace(sec, line=dict(color=_get_colour(i), width=2) | ({} if line is None else line), name=keys[i], text=text)
             )
 
     if origin:
