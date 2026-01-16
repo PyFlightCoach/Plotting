@@ -1,6 +1,6 @@
 [project]
 name = "flightplotting"
-version="v0.2.13"
+version="v0.2.14"
 description = "Add your description here"
 readme = "README.md"
 authors = [{ name = "Thomas David", email = "thomasdavid0@gmail.com" }]
@@ -9,9 +9,7 @@ dependencies = [
     "numpy>=2.1.3",
     "pandas>=2.2.3",
     "plotly>=5.24.1",
-    "flightdata>=0.3.0",
-    "pfc-geometry",
-    "pfcschemas",
+    "flightdata>=0.3.5",
 ]
 
 [build-system]
