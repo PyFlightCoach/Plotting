@@ -1,3 +1,4 @@
+import re
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import plotly.express as px
@@ -15,13 +16,17 @@ from plotting.traces import (
 )
 
 from flightdata import State
-from geometry import Coord
+import geometry as g
 from plotting.model import obj
 import numpy.typing as npt
 import numpy as np
 import pandas as pd
-from typing import List, Union
+from typing import List, Union, Callable, Literal
 
+
+
+def get_colour(i):
+    return px.colors.qualitative.Plotly[i % len(px.colors.qualitative.Plotly)]
 
 def plotsec(
     secs: State | list[State] | dict[str, State],
@@ -37,6 +42,8 @@ def plotsec(
     tips: bool = True,
     ribbonhover="t",    
     origin=False,
+    line=None,
+    modelscale=1,
 ):
     traces = []
     keys = None
@@ -50,24 +57,32 @@ def plotsec(
     else:
         keys = list(range(len(secs)))
         showkeys = False
+    
+    def _get_colour(i):
+        if isinstance(color, list):
+            return color[i % len(color)]
+        elif isinstance(color, str):
+            return color
+        else:
+            return get_colour(i)
 
     for i, sec in enumerate(secs):
         text = sec.data.t  # - sec.data.t.iloc[0]
-        _color = color if color is not None else px.colors.qualitative.Plotly[i]
+        
         if ribb:
-            traces += ribbon(sec, 0.5 * scale * 1.85, "grey", name=keys[i], opacity=0.5, hover=ribbonhover)
+            traces += ribbon(sec, 0.5 * scale * 1.85, _get_colour(i), name=keys[i], opacity=0.5, hover=ribbonhover)
         if tips:
-            traces += tiptrace(sec, scale * 1.85, text=text, name=keys[i])
+            traces += tiptrace(sec, scale * 1.85, text=text, name=keys[i], line=({} if line is None else line))
         if nmodels > 0:
-            traces += meshes(nmodels, sec, _color, scale)
+            traces += meshes(nmodels, sec, _get_colour(i), scale * modelscale)
         if cg:
             traces.append(
-                cgtrace(sec, line=dict(color=_color, width=2), name=keys[i], text=text)
+                cgtrace(sec, line=dict(color=_get_colour(i), width=2) | ({} if line is None else line), name=keys[i], text=text)
             )
 
     if origin:
-        traces += axestrace(Coord.zero(), 50)
-
+        traces += axestrace(g.Coord.zero(), 50)
+    
     if showkeys:
         for i, key in enumerate(keys):
             traces.append(
@@ -76,7 +91,7 @@ def plotsec(
                     y=[],
                     z=[],
                     mode="markers",
-                    marker=dict(size=5, color=px.colors.qualitative.Plotly[i]),
+                    marker=dict(size=5, color=_get_colour(i)),
                     name=key,
                     showlegend=True,
                 )
@@ -359,3 +374,144 @@ axis = dict(
     zerolinecolor="lightgrey",
     showline=True,
 )
+
+
+def create_ortho_state(st: State, axis: Literal['x', 'z'], width: g.Point, gap: g.Point) -> State:
+    """rotate by 90 degrees about the given axis,
+    then move to where it should be in an orthographic projection.
+    assumes front view is along the Y axis (x right, z up).
+    also assumes state is centered at the origin.
+    """
+    st = st.move(g.Transformation(g.Euler(
+        np.pi/2 if axis=="x" else 0, 
+        0,
+        np.pi/2 if axis=="z" else 0
+    ))) 
+
+    if axis == 'x':
+        shift = g.PZ((width.y + width.z) / 2 + gap)
+    elif axis == 'z':
+        shift = g.PX(-(width.x + width.y) / 2 - gap)
+
+    st = st.move(g.Transformation( shift) ) # move back to center and offset by shift
+
+    return st
+
+
+def applysts(st: State | list[State] | dict[str, State], fun: Callable[[State], State]) -> Union[State, List[State], dict[str, State]]:
+    """apply a transformation to all states in a list or dict of states"""
+    if isinstance(st, State):
+        return fun(st)
+    elif isinstance(st, list):
+        return [fun(s) for s in st]
+    elif isinstance(st, dict):
+        return {k: fun(v) for k, v in st.items()}
+
+
+def get_points(fig: go.Figure) -> g.Point:
+    """extract all points from a figure"""
+    ps = []
+    for d in fig.data:
+        try:
+            ps.append(g.Point(d.x, d.y, d.z))
+        except Exception:
+            pass
+    return g.Point.concatenate(ps)
+
+
+def plot_3view(st: State | list[State] | dict[str, State], plotfun: Callable, gap: float, legend_vstep=10):
+    
+    allsts = State.stack(st, "grp") if not isinstance(st, State) else st
+
+    width = allsts.pos.max() - allsts.pos.min()
+    center = allsts.pos.min() + width / 2
+
+    st0 = applysts(st, lambda s: s.move(g.Transformation(-center)))
+    st1 = applysts(st0, lambda s: create_ortho_state(s, 'x', width, gap))
+    st2 = applysts(st0, lambda s: create_ortho_state(s, 'z', width, gap))
+
+
+    fig = go.Figure(data=
+        plotfun(st0) + plotfun(st1) + plotfun(st2)
+    )
+
+    anprops = dict(
+        showarrow=False,
+        font=dict(size=16, family="Rockwell"),
+        xanchor="center",
+        yanchor="middle",
+    )
+
+
+    fig = fig.update_layout(
+        template="plotly_white",
+        scene=dict(
+            camera=dict(
+                eye=dict(x=0, y=-1, z=0),
+                center=dict(x=0, y=0, z=0),
+                projection=dict(type="orthographic"),
+            ),
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            zaxis=dict(visible=False),
+            annotations=[
+                dict(
+                    x=0, y=0, z=-width.z[0] / 2 - gap/2,
+                    text="Front View",
+                    
+                ) | anprops,
+                dict(
+                    x=0, y=0, z=width.z[0] / 2 + width.y[0] / 2 + gap/2,
+                    text="Top View",
+                ) | anprops
+                ,
+                dict(
+                    x=-width.x[0] / 2 - width.y[0] / 2 - gap, y=0, z=-width.z[0] / 2 - gap/2,
+                    text="Left View",
+                ) | anprops
+            ] + ([] if not isinstance(st, dict) else [dict(
+                x=-width.x[0] / 2 - width.y[0] / 2 - gap,
+                y=0,
+                z=width.z[0] / 2 + width.y[0] / 2 + gap/2 + i * legend_vstep,
+                text=k,
+                font=dict(size=16, family="Rockwell", color=px.colors.qualitative.Plotly[i]),
+                showarrow=False,
+            ) for i, k in enumerate(st.keys())] )
+        ),
+        margin=dict(l=0, r=0, b=0, t=0),
+        
+    )
+
+    return resize_3d_fig(fig, 600, False)
+
+
+def resize_3d_fig(fig: go.Figure, width: int | None, width_is_height: bool=False, scale: float=1):
+    """Resize a figure to the given width, height and zoom level.
+    preserves the aspect ratio of the scene. 
+    Assumes view is in the positive Y direction
+    """
+    
+    all_points = get_points(fig)
+
+    btm_left = all_points.min()
+    top_right = all_points.max() 
+
+    bb = (top_right - btm_left) 
+    width = width or (fig.layout.height if width_is_height else fig.layout.width) or 600
+    zoom = (0.008 * scale*width/(bb.z[0] if width_is_height else bb.x[0])) 
+    ar = bb * zoom
+    height = ar.x[0] * width / ar.z[0] if width_is_height else ar.z[0] * width / ar.x[0]
+    fig.update_layout(
+        width=height if width_is_height  else width,
+        height=width if width_is_height else height,
+        scene=dict(
+            aspectratio=dict(x=ar.x[0], y=ar.y[0], z=ar.z[0]),
+            camera=dict(
+                eye=dict(x=0, y=-1, z=0),
+                center=dict(x=0, y=0, z=0),
+                projection=dict(type="orthographic"),
+            )
+        ),
+    )
+
+    return fig

@@ -4,6 +4,7 @@ from plotting.plots import (
     plotdtw,
     create_3d_plot,
     plot_regions,
+    resize_3d_fig
 )
 from plotting.traces import (
     axestrace,

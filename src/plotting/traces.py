@@ -107,12 +107,12 @@ def elementtraces(manoeuvre, sec: State):
 
 
 
-def tiptrace(seq, span, **kwargs):
+def tiptrace(seq, span, line=None, **kwargs):
     
     def make_offset_trace(pos, colour):
         tr =  trace3d(
             *seq.body_to_world(pos).data.T,
-            **dict(dict(line=dict(color=colour, width=1)), **kwargs)
+            **dict(line=dict(color=colour, width=1) | ({} if line is None else line), **kwargs)
         )
         tr['showlegend'] = False
         return tr
