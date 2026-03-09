@@ -17,7 +17,7 @@ from plotting.traces import (
 
 from flightdata import State
 import geometry as g
-from plotting.model import obj
+from plotting.model import OBJ, obj
 import numpy.typing as npt
 import numpy as np
 import pandas as pd
@@ -44,6 +44,7 @@ def plotsec(
     origin=False,
     line=None,
     modelscale=1,
+    model: OBJ = None
 ):
     traces = []
     keys = None
@@ -74,7 +75,7 @@ def plotsec(
         if tips:
             traces += tiptrace(sec, scale * 1.85, text=text, name=keys[i], line=({} if line is None else line))
         if nmodels > 0:
-            traces += meshes(nmodels, sec, _get_colour(i), scale * modelscale)
+            traces += meshes(nmodels, sec, _get_colour(i), scale * modelscale, _obj=model)
         if cg:
             traces.append(
                 cgtrace(sec, line=dict(color=_get_colour(i), width=2) | ({} if line is None else line), name=keys[i], text=text)

@@ -42,6 +42,10 @@ class OBJ:
         obj_data = file.read()
         return OBJ.from_obj_data(obj_data)
 
+    @staticmethod
+    def load_model(name: str):
+        return OBJ.from_obj_file(files("plotting.data").joinpath(name).open("r"))
+
     def transform(
         self,
         transformantion: Transformation = Transformation(
@@ -88,3 +92,7 @@ obj = OBJ.from_obj_data(_obj_string).transform(
         Point(0.75, 0, 0), Quaternion.from_euler(Point(np.pi, 0, -np.pi / 2))
     )
 )
+
+
+def load_obj(name: str) -> OBJ:
+    return OBJ.from_obj_data(files("plotting.data").joinpath(name).open("r").read())
