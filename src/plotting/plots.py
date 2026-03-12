@@ -159,6 +159,7 @@ def plot_regions(
     colours=None,
     fig=None,
     ribbonhover="t",
+    rename: dict[str, str] = None,
     **kwargs,
 ):
     colours = px.colors.qualitative.Plotly if colours is None else colours
@@ -172,7 +173,7 @@ def plot_regions(
             seg,
             span,
             colours[i%len(colours)],
-            name=k,
+            name=k if rename is None else rename.get(k, k),
             hover=ribbonhover
         )
 
