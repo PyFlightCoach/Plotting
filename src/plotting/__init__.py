@@ -1,3 +1,5 @@
+from plotting.formatters import format_npi, npi_axis_props
+
 from plotting.plots import (
     plotsec,
     plot_analysis,
