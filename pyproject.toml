@@ -1,6 +1,6 @@
 [project]
 name = "flightplotting"
-version="v0.2.14"
+version="0.2.15.dev0"
 description = "Add your description here"
 readme = "README.md"
 authors = [{ name = "Thomas David", email = "thomasdavid0@gmail.com" }]
