@@ -44,7 +44,9 @@ def plotsec(
     origin=False,
     line=None,
     modelscale=1,
-    model: OBJ = None
+    model: OBJ = None,
+    row:int=None,
+    col:int=None,
 ):
     traces = []
     keys = None
@@ -117,7 +119,7 @@ def plotsec(
         if height is not None:
             fig.update_layout(height=height)
     else:
-        fig.add_traces(traces)
+        fig.add_traces(traces, rows=row, cols=col)
     return fig
 
 
