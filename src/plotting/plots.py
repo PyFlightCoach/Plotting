@@ -1,52 +1,52 @@
-import re
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-import plotly.express as px
-import plotting.templates
-from plotting.traces import (
-    tiptrace,
-    meshes,
-    control_input_trace,
-    axis_rate_trace,
-    aoa_trace,
-    cgtrace,
-    ribbon,
-    vectors,
-    axestrace,
-)
+from collections.abc import Callable
+from typing import Literal
 
-from flightdata import State
 import geometry as g
-from plotting.model import OBJ, obj
-import numpy.typing as npt
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
-from typing import List, Union, Callable, Literal
+import plotly.express as px
+import plotly.graph_objects as go
+from flightdata import State
+from plotly.subplots import make_subplots
 
+from plotting.model import OBJ, obj
+from plotting.traces import (
+    aoa_trace,
+    axestrace,
+    axis_rate_trace,
+    cgtrace,
+    control_input_trace,
+    meshes,
+    ribbon,
+    tiptrace,
+    vectors,
+)
 
 
 def get_colour(i):
     return px.colors.qualitative.Plotly[i % len(px.colors.qualitative.Plotly)]
+
 
 def plotsec(
     secs: State | list[State] | dict[str, State],
     scale=5,
     nmodels=0,
     fig=None,
-    color: Union[str, list[str]] = None,
+    color: str | list[str] | None = None,
     cg=False,
     width=None,
     height=None,
     show_axes=False,
     ribb: bool = False,
     tips: bool = True,
-    ribbonhover="t",    
+    ribbonhover="t",
     origin=False,
     line=None,
     modelscale=1,
     model: OBJ = None,
-    row:int=None,
-    col:int=None,
+    row: int | None = None,
+    col: int | None = None,
 ):
     traces = []
     keys = None
@@ -60,7 +60,7 @@ def plotsec(
     else:
         keys = list(range(len(secs)))
         showkeys = False
-    
+
     def _get_colour(i):
         if isinstance(color, list):
             return color[i % len(color)]
@@ -70,22 +70,43 @@ def plotsec(
             return get_colour(i)
 
     for i, sec in enumerate(secs):
-        text = sec.data.t  # - sec.data.t.iloc[0]
-        
+        text = sec.t  # - sec.data.t.iloc[0]
+
         if ribb:
-            traces += ribbon(sec, 0.5 * scale * 1.85, _get_colour(i), name=keys[i], opacity=0.5, hover=ribbonhover)
+            traces += ribbon(
+                sec,
+                0.5 * scale * 1.85,
+                _get_colour(i),
+                name=keys[i],
+                opacity=0.5,
+                hover=ribbonhover,
+            )
         if tips:
-            traces += tiptrace(sec, scale * 1.85, text=text, name=keys[i], line=({} if line is None else line))
+            traces += tiptrace(
+                sec,
+                scale * 1.85,
+                text=text,
+                name=keys[i],
+                line=({} if line is None else line),
+            )
         if nmodels > 0:
-            traces += meshes(nmodels, sec, _get_colour(i), scale * modelscale, _obj=model)
+            traces += meshes(
+                nmodels, sec, _get_colour(i), scale * modelscale, _obj=model
+            )
         if cg:
             traces.append(
-                cgtrace(sec, line=dict(color=_get_colour(i), width=2) | ({} if line is None else line), name=keys[i], text=text)
+                cgtrace(
+                    sec,
+                    line={"color": _get_colour(i), "width": 2}
+                    | ({} if line is None else line),
+                    name=keys[i],
+                    text=text,
+                )
             )
 
     if origin:
         traces += axestrace(g.Coord.zero(), 50)
-    
+
     if showkeys:
         for i, key in enumerate(keys):
             traces.append(
@@ -94,7 +115,7 @@ def plotsec(
                     y=[],
                     z=[],
                     mode="markers",
-                    marker=dict(size=5, color=_get_colour(i)),
+                    marker={"size": 5, "color": _get_colour(i)},
                     name=key,
                     showlegend=True,
                 )
@@ -107,12 +128,12 @@ def plotsec(
         )
         if show_axes:
             fig.update_layout(
-                scene=dict(
-                    aspectmode="data",
-                    xaxis=dict(visible=True, showticklabels=True),
-                    yaxis=dict(visible=True, showticklabels=True),
-                    zaxis=dict(visible=True, showticklabels=True),
-                )
+                scene={
+                    "aspectmode": "data",
+                    "xaxis": {"visible": True, "showticklabels": True},
+                    "yaxis": {"visible": True, "showticklabels": True},
+                    "zaxis": {"visible": True, "showticklabels": True},
+                }
             )
         if width is not None:
             fig.update_layout(width=width)
@@ -123,7 +144,7 @@ def plotsec(
     return fig
 
 
-def plotdtw(sec: State, manoeuvres: List[str], span=3, fig=None):
+def plotdtw(sec: State, manoeuvres: list[str], span=3, fig=None):
     if fig is None:
         fig = go.Figure(layout=go.Layout(template="flight3d+judge_view"))
 
@@ -141,13 +162,12 @@ def plotdtw(sec: State, manoeuvres: List[str], span=3, fig=None):
                     y=seg.pos.y,
                     z=seg.pos.z,
                     mode="lines",
-                    line=dict(width=6, color=px.colors.qualitative.Alphabet[i]),
+                    line={"width": 6, "color": px.colors.qualitative.Alphabet[i]},
                     name=name,
                 )
             )
         except Exception as ex:
-            pass
-            print("no data for manoeuvre {}, {}".format(name, ex))
+            print(f"no data for manoeuvre {name}, {ex}")
 
     fig.add_traces(traces)
 
@@ -161,7 +181,7 @@ def plot_regions(
     colours=None,
     fig=None,
     ribbonhover="t",
-    rename: dict[str, str] = None,
+    rename: dict[str, str] | None = None,
     **kwargs,
 ):
     colours = px.colors.qualitative.Plotly if colours is None else colours
@@ -174,11 +194,10 @@ def plot_regions(
         traces += ribbon(
             seg,
             span,
-            colours[i%len(colours)],
+            colours[i % len(colours)],
             name=k if rename is None else rename.get(k, k),
-            hover=ribbonhover
+            hover=ribbonhover,
         )
-
 
     if fig is None:
         fig = go.Figure(layout=go.Layout(template="flight3d+judge_view"))
@@ -190,10 +209,10 @@ def create_3d_plot(traces):
     return go.Figure(traces, layout=go.Layout(template="flight3d+judge_view"))
 
 
-nb_layout = dict(
-    margin=dict(l=5, r=5, t=5, b=1),
-    legend=dict(yanchor="top", xanchor="left", x=0.8, y=0.99),
-)
+nb_layout = {
+    "margin": {"l": 5, "r": 5, "t": 5, "b": 1},
+    "legend": {"yanchor": "top", "xanchor": "left", "x": 0.8, "y": 0.99},
+}
 
 
 def control_brv_plot(sec, control_inputs=["aileron", "elevator", "rudder", "throttle"]):
@@ -264,7 +283,7 @@ def grid3dplot(plots):
         specs=[[{"type": "scene"} for i in range(ncols)] for j in range(nrows)],
     )
 
-    sceneids = ["scene{}".format(i + 1) for i in range(ncols * nrows)]
+    sceneids = [f"scene{i + 1}" for i in range(ncols * nrows)]
     sceneids[0] = "scene"
     fig.update_layout(
         **{
@@ -305,12 +324,12 @@ def plot_analysis(
     fig.add_traces(meshes(nmodels, analysis.body, "green", obj))
 
     fig.update_layout(
-        scene=dict(
-            aspectmode="data",
-            xaxis=dict(visible=True, showticklabels=True),
-            yaxis=dict(visible=True, showticklabels=True),
-            zaxis=dict(visible=True, showticklabels=True),
-        ),
+        scene={
+            "aspectmode": "data",
+            "xaxis": {"visible": True, "showticklabels": True},
+            "yaxis": {"visible": True, "showticklabels": True},
+            "zaxis": {"visible": True, "showticklabels": True},
+        },
         height=800,
     )
     return fig
@@ -380,29 +399,33 @@ axis = dict(
 )
 
 
-def create_ortho_state(st: State, axis: Literal['x', 'z'], width: g.Point, gap: g.Point) -> State:
+def create_ortho_state(
+    st: State, axis: Literal["x", "z"], width: g.Point, gap: g.Point
+) -> State:
     """rotate by 90 degrees about the given axis,
     then move to where it should be in an orthographic projection.
     assumes front view is along the Y axis (x right, z up).
     also assumes state is centered at the origin.
     """
-    st = st.move(g.Transformation(g.Euler(
-        np.pi/2 if axis=="x" else 0, 
-        0,
-        np.pi/2 if axis=="z" else 0
-    ))) 
+    st = st.move(
+        g.Transformation(
+            g.Euler(np.pi / 2 if axis == "x" else 0, 0, np.pi / 2 if axis == "z" else 0)
+        )
+    )
 
-    if axis == 'x':
+    if axis == "x":
         shift = g.PZ((width.y + width.z) / 2 + gap)
-    elif axis == 'z':
+    elif axis == "z":
         shift = g.PX(-(width.x + width.y) / 2 - gap)
 
-    st = st.move(g.Transformation( shift) ) # move back to center and offset by shift
+    st = st.move(g.Transformation(shift))  # move back to center and offset by shift
 
     return st
 
 
-def applysts(st: State | list[State] | dict[str, State], fun: Callable[[State], State]) -> Union[State, List[State], dict[str, State]]:
+def applysts(
+    st: State | list[State] | dict[str, State], fun: Callable[[State], State]
+) -> State | list[State] | dict[str, State]:
     """apply a transformation to all states in a list or dict of states"""
     if isinstance(st, State):
         return fun(st)
@@ -423,21 +446,23 @@ def get_points(fig: go.Figure) -> g.Point:
     return g.Point.concatenate(ps)
 
 
-def plot_3view(st: State | list[State] | dict[str, State], plotfun: Callable, gap: float, legend_vstep=10):
-    
+def plot_3view(
+    st: State | list[State] | dict[str, State],
+    plotfun: Callable,
+    gap: float,
+    legend_vstep=10,
+):
+
     allsts = State.stack(st, "grp") if not isinstance(st, State) else st
 
     width = allsts.pos.max() - allsts.pos.min()
     center = allsts.pos.min() + width / 2
 
     st0 = applysts(st, lambda s: s.move(g.Transformation(-center)))
-    st1 = applysts(st0, lambda s: create_ortho_state(s, 'x', width, gap))
-    st2 = applysts(st0, lambda s: create_ortho_state(s, 'z', width, gap))
+    st1 = applysts(st0, lambda s: create_ortho_state(s, "x", width, gap))
+    st2 = applysts(st0, lambda s: create_ortho_state(s, "z", width, gap))
 
-
-    fig = go.Figure(data=
-        plotfun(st0) + plotfun(st1) + plotfun(st2)
-    )
+    fig = go.Figure(data=plotfun(st0) + plotfun(st1) + plotfun(st2))
 
     anprops = dict(
         showarrow=False,
@@ -445,7 +470,6 @@ def plot_3view(st: State | list[State] | dict[str, State], plotfun: Callable, ga
         xanchor="center",
         yanchor="middle",
     )
-
 
     fig = fig.update_layout(
         template="plotly_white",
@@ -460,53 +484,73 @@ def plot_3view(st: State | list[State] | dict[str, State], plotfun: Callable, ga
             zaxis=dict(visible=False),
             annotations=[
                 dict(
-                    x=0, y=0, z=-width.z[0] / 2 - gap/2,
+                    x=0,
+                    y=0,
+                    z=-width.z[0] / 2 - gap / 2,
                     text="Front View",
-                    
-                ) | anprops,
+                )
+                | anprops,
                 dict(
-                    x=0, y=0, z=width.z[0] / 2 + width.y[0] / 2 + gap/2,
+                    x=0,
+                    y=0,
+                    z=width.z[0] / 2 + width.y[0] / 2 + gap / 2,
                     text="Top View",
-                ) | anprops
-                ,
+                )
+                | anprops,
                 dict(
-                    x=-width.x[0] / 2 - width.y[0] / 2 - gap, y=0, z=-width.z[0] / 2 - gap/2,
+                    x=-width.x[0] / 2 - width.y[0] / 2 - gap,
+                    y=0,
+                    z=-width.z[0] / 2 - gap / 2,
                     text="Left View",
-                ) | anprops
-            ] + ([] if not isinstance(st, dict) else [dict(
-                x=-width.x[0] / 2 - width.y[0] / 2 - gap,
-                y=0,
-                z=width.z[0] / 2 + width.y[0] / 2 + gap/2 + i * legend_vstep,
-                text=k,
-                font=dict(size=16, family="Rockwell", color=px.colors.qualitative.Plotly[i]),
-                showarrow=False,
-            ) for i, k in enumerate(st.keys())] )
+                )
+                | anprops,
+            ]
+            + (
+                []
+                if not isinstance(st, dict)
+                else [
+                    dict(
+                        x=-width.x[0] / 2 - width.y[0] / 2 - gap,
+                        y=0,
+                        z=width.z[0] / 2 + width.y[0] / 2 + gap / 2 + i * legend_vstep,
+                        text=k,
+                        font=dict(
+                            size=16,
+                            family="Rockwell",
+                            color=px.colors.qualitative.Plotly[i],
+                        ),
+                        showarrow=False,
+                    )
+                    for i, k in enumerate(st.keys())
+                ]
+            ),
         ),
         margin=dict(l=0, r=0, b=0, t=0),
-        
     )
 
     return resize_3d_fig(fig, 600, False)
 
 
-def resize_3d_fig(fig: go.Figure, width: int | None, width_is_height: bool=False, scale: float=1):
+def resize_3d_fig(
+    fig: go.Figure, width: int | None, width_is_height: bool = False, scale: float = 1
+):
     """Resize a figure to the given width, height and zoom level.
-    preserves the aspect ratio of the scene. 
+    preserves the aspect ratio of the scene.
     Assumes view is in the positive Y direction
     """
-    
+
     all_points = get_points(fig)
 
     btm_left = all_points.min()
-    top_right = all_points.max() 
+    top_right = all_points.max()
 
-    bb = (top_right - btm_left) 
+    bb = top_right - btm_left
     width = width or (fig.layout.height if width_is_height else fig.layout.width) or 600
-    zoom = (0.008 * scale*width/(bb.z[0] if width_is_height else bb.x[0])) 
+    zoom = 0.008 * scale * width / (bb.z[0] if width_is_height else bb.x[0])
     ar = bb * zoom
     height = ar.x[0] * width / ar.z[0] if width_is_height else ar.z[0] * width / ar.x[0]
     fig.update_layout(
-        width=height if width_is_height  else width,
+        width=height if width_is_height else width,
         height=width if width_is_height else height,
         scene=dict(
             aspectratio=dict(x=ar.x[0], y=ar.y[0], z=ar.z[0]),
@@ -514,7 +558,7 @@ def resize_3d_fig(fig: go.Figure, width: int | None, width_is_height: bool=False
                 eye=dict(x=0, y=-1, z=0),
                 center=dict(x=0, y=0, z=0),
                 projection=dict(type="orthographic"),
-            )
+            ),
         ),
     )
 

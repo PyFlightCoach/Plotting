@@ -1,13 +1,15 @@
 from typing import Literal
-import plotly.graph_objects as go
-import plotting.templates
-from geometry import Point, Coord, Transformation
+
 import geometry as g
 import numpy as np
-from plotly.colors import DEFAULT_PLOTLY_COLORS
-from flightdata import State
-from plotting.model import obj, OBJ
 import plotly.express as px
+import plotly.graph_objects as go
+from flightdata import State
+from geometry import Coord, Point, Transformation
+from plotly.colors import DEFAULT_PLOTLY_COLORS
+
+import plotting.templates
+from plotting.model import OBJ, obj
 
 
 def boxtrace():
@@ -63,7 +65,7 @@ def vector(origin, direction, **kwargs):
 
 def vectors(npoints: int, seq: State, vectors: Point, **kwargs):
     trs = []
-    step = int(len(seq.data) / (npoints + 1))
+    step = int(len(seq) / (npoints + 1))
     for pos, wind in zip(seq.pos[::step], vectors[::step]):
         pdata = Point.concatenate([pos, pos + wind])
         trs.append(trace3d(*pdata.data.T, text=abs(vectors), **kwargs))
@@ -173,12 +175,12 @@ def axis_rate_traces(sts: dict[str, State], cols="pqr"):
     cols = px.colors.qualitative.D3
     traces = []
     dashes = ["solid", "dot", "dash", "longdash", "dashdot", "longdashdot"]
-    st0 = list(sts.values())[0]
+    st0 = next(iter(sts.values()))
     for i, rv in enumerate(list("pqr")):
         for k, st in sts.items():
             traces.append(
                 go.Scatter(
-                    x=st0.data.index - st0.data.index[0],
+                    x=st0.t0,
                     y=getattr(st, rv),
                     name=f"{k} {rv}",
                     line=dict(color=cols[i], dash=dashes[list(sts.keys()).index(k)]),
@@ -194,8 +196,8 @@ def sec_col_trace(
     for i, axis in enumerate(columns):
         trs.append(
             go.Scatter(
-                x=sec.data.index,
-                y=yfunc(sec.data[axis]),
+                x=sec.t,
+                y=yfunc(getattr(sec, axis)),
                 name=axis,
                 line=dict(color=colours[i], dash=dash),
             )
