@@ -178,7 +178,7 @@ def plot_regions(
     st: State,
     label_group_name: str,
     span=3,
-    colours=None,
+    colours: list[str] | None = None,
     fig=None,
     ribbonhover="t",
     rename: dict[str, str] | None = None,
@@ -197,6 +197,7 @@ def plot_regions(
             colours[i % len(colours)],
             name=k if rename is None else rename.get(k, k),
             hover=ribbonhover,
+            **kwargs,
         )
 
     if fig is None:
