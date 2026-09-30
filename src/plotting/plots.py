@@ -182,11 +182,14 @@ def plot_regions(
     fig=None,
     ribbonhover="t",
     rename: dict[str, str] | None = None,
+    show_annotations: bool = True,
     **kwargs,
 ):
     colours = px.colors.qualitative.Plotly if colours is None else colours
+    rename = rename or {}
 
     traces = []
+    annotations = []
     for i, k in enumerate(st.labels[label_group_name].keys()):
         seg = getattr(st, label_group_name)[k]
         if len(seg) < 3:
@@ -195,14 +198,36 @@ def plot_regions(
             seg,
             span,
             colours[i % len(colours)],
-            name=k if rename is None else rename.get(k, k),
+            name=rename.get(k, k),
             hover=ribbonhover,
             **kwargs,
         )
+    if show_annotations:
+        for i, k in enumerate(st.labels[label_group_name].keys()):
+            name = rename.get(k, k)
+            if name is None or name == "":
+                continue
+            seg = getattr(st, label_group_name)[k]
+
+            _pmid = seg.pos[len(seg) // 2]
+            annotations.append(
+                go.layout.scene.Annotation(
+                    x=_pmid.x[0],
+                    y=_pmid.y[0],
+                    z=_pmid.z[0],
+                    text=name,
+                    showarrow=True,
+                    arrowhead=2,
+                    ax=50,
+                    ay=-5,
+                )
+            )
 
     if fig is None:
         fig = go.Figure(layout=go.Layout(template="flight3d+judge_view"))
     fig.add_traces(traces)
+    if annotations:
+        fig.update_layout(scene_annotations=annotations)
     return fig
 
 
