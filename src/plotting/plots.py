@@ -38,6 +38,7 @@ def plotsec(
     width=None,
     height=None,
     show_axes=False,
+    legend: bool = True,
     ribb: bool = False,
     tips: bool = True,
     ribbonhover="t",
@@ -56,7 +57,7 @@ def plotsec(
     if isinstance(secs, dict):
         keys = list(secs.keys())
         secs = list(secs.values())
-        showkeys = True
+        showkeys = legend
     else:
         keys = list(range(len(secs)))
         showkeys = False
@@ -111,20 +112,33 @@ def plotsec(
         for i, key in enumerate(keys):
             traces.append(
                 go.Scatter3d(
-                    x=[],
-                    y=[],
-                    z=[],
+                    x=[0,0,0],
+                    y=[0,0,0],
+                    z=[0,0,0],
                     mode="markers",
-                    marker={"size": 5, "color": _get_colour(i)},
+                    visible="legendonly",
+                    marker={"size": 5, "color": _get_colour(i), "symbol": "square"},
                     name=key,
                     showlegend=True,
+                    
                 )
             )
 
     if fig is None:
         fig = go.Figure(
             data=traces,
-            layout=go.Layout(template="flight3d", uirevision="foo"),
+            layout=go.Layout(
+                template="flight3d",
+                uirevision="foo",
+                showlegend=legend,
+                legend=dict(
+                    yanchor="top", 
+                    xanchor="right", 
+                    x=0.75, 
+                    y=0.99,
+                    bgcolor="white",
+                )
+            ),
         )
         if show_axes:
             fig.update_layout(
@@ -182,7 +196,7 @@ def plot_regions(
     fig=None,
     ribbonhover="t",
     rename: dict[str, str] | None = None,
-    show_annotations: bool = True,
+    show_annotations: bool = False,
     **kwargs,
 ):
     colours = px.colors.qualitative.Plotly if colours is None else colours
