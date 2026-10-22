@@ -112,15 +112,14 @@ def plotsec(
         for i, key in enumerate(keys):
             traces.append(
                 go.Scatter3d(
-                    x=[0,0,0],
-                    y=[0,0,0],
-                    z=[0,0,0],
+                    x=[0, 0, 0],
+                    y=[0, 0, 0],
+                    z=[0, 0, 0],
                     mode="markers",
                     visible="legendonly",
                     marker={"size": 5, "color": _get_colour(i), "symbol": "square"},
                     name=key,
                     showlegend=True,
-                    
                 )
             )
 
@@ -132,12 +131,12 @@ def plotsec(
                 uirevision="foo",
                 showlegend=legend,
                 legend=dict(
-                    yanchor="top", 
-                    xanchor="right", 
-                    x=0.75, 
+                    yanchor="top",
+                    xanchor="right",
+                    x=0.75,
                     y=0.99,
                     bgcolor="white",
-                )
+                ),
             ),
         )
         if show_axes:
@@ -155,6 +154,44 @@ def plotsec(
             fig.update_layout(height=height)
     else:
         fig.add_traces(traces, rows=row, cols=col)
+    return fig
+
+
+def plot_2d(
+    st: State,
+    plane: str = "xy",
+    labelgroup: str | None = None,
+    color: list[str] | str | None = None,
+    fig=None,
+    row=None,
+    col=None,
+    **kwargs,
+):
+
+    color = color or px.colors.qualitative.Plotly
+    if fig is None:
+        fig = go.Figure(layout=go.Layout(template="plotly_white")).update_layout(
+            yaxis=dict(scaleanchor="x", scaleratio=1)
+        )
+
+    if isinstance(color, str) and labelgroup is not None:
+        color = [color] * len(st.labels[labelgroup])
+
+    for i, (k, v) in enumerate(st.labels[labelgroup].items()):
+        seg = getattr(st, labelgroup)[k]
+        fig.add_trace(
+            go.Scatter(
+                x=getattr(seg, plane[0]),
+                y=getattr(seg, plane[1]),
+                line=dict(color=color[i % len(color)], width=2),
+                mode="lines",
+                name="trajectory",
+                showlegend=False
+            ),
+            row=row,
+            col=col,
+        )
+
     return fig
 
 

@@ -63,12 +63,68 @@ def vector(origin, direction, **kwargs):
     return trace3d(*pdata.data.T, **kwargs)
 
 
-def vectors(npoints: int, seq: State, vectors: Point, **kwargs):
+
+
+def arrow3d(origin, direction, arrow_size=2, color="red", **kwargs):
+    tip = origin + direction
+    return [
+        trace3d(
+            *Point.concatenate([origin, tip]).data.T,
+            **(dict(line=dict(width=2, color=color)) | kwargs),
+        ),
+        go.Cone(
+            x=[tip.x[0]],
+            y=[tip.y[0]],
+            z=[tip.z[0]],
+            u=[direction.x[0]],
+            v=[direction.y[0]],
+            w=[direction.z[0]],
+            anchor="tip",
+            sizemode="absolute",
+            sizeref=arrow_size,
+            showscale=False,
+            colorscale=[[0, color], [1, color]],
+        ),
+    ]
+
+
+def vectors(
+    npoints: int,
+    seq: State,
+    vectors: Point,
+    arrows: bool = False,
+    arrow_size: float = 2.0,
+    color: str = "black",
+    **kwargs,
+):
     trs = []
-    step = int(len(seq) / (npoints + 1))
-    for pos, wind in zip(seq.pos[::step], vectors[::step]):
-        pdata = Point.concatenate([pos, pos + wind])
-        trs.append(trace3d(*pdata.data.T, text=abs(vectors), **kwargs))
+
+    locs = []
+    if npoints < 1:
+        raise ValueError("npoints must be >= 1")
+    if npoints >= 1:
+        locs.append(0)
+    if npoints >= 2:
+        locs.append(-1)
+    if npoints >= 3:
+        locs = locs + list(
+            np.cumsum(np.full(npoints - 2, len(seq) / (npoints - 1))).astype(int)
+        )
+
+    for loc in locs:
+        _st = seq.iloc[loc]
+        pos = _st.pos
+        vec = vectors[loc]
+        end = pos + vec
+        pdata = Point.concatenate([pos, end])
+        trs.append(trace3d(*pdata.data.T, **kwargs))
+        if arrows:
+            trs += arrow3d(
+                pos,
+                vec,
+                arrow_size=arrow_size,
+                color=color,
+            )
     return trs
 
 
@@ -309,59 +365,3 @@ def ribbon(sec: State, span: float, color, hover: Literal["i", "t"] = "i", **kwa
             **kwargs,
         )
     ]
-
-
-def arrow3d(
-    origin: g.Point,
-    direction: g.Point,
-    scale: g.Point,
-    text: str = None,
-    textposition: str = "top left",
-    width: float = 5,
-    color: str = "red",
-    tipsize: float = 6,
-):
-
-    tip = origin + direction * scale
-    traces = []
-
-    if width>0:
-        traces.append(go.Scatter3d(
-            x=[origin.x[0], tip.x[0]],
-            y=[origin.y[0], tip.y[0]],
-            z=[origin.z[0], tip.z[0]],
-            mode="lines",
-            line=dict(width=width, color=color),
-            showlegend=False,
-        ))
-    
-    if text is not None:
-        traces.append(go.Scatter3d(
-            x=[tip.x[0]],
-            y=[tip.y[0]],
-            z=[tip.z[0]],
-            mode="text",
-            text=[text],
-            textposition=textposition,
-            textfont=dict(color=color),
-            showlegend=False,
-        ))
-
-
-    traces.append(
-        go.Cone(
-            x=[tip.x[0]],
-            y=[tip.y[0]],
-            z=[tip.z[0]],
-            u=[direction.x[0]],
-            v=[direction.y[0]],
-            w=[direction.z[0]],
-            anchor="tip",
-            sizemode="absolute",
-            sizeref=tipsize,
-            showscale=False,
-            colorscale=[[0, color], [1, color]],
-            showlegend=False,
-        )
-    )
-    return traces
